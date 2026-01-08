@@ -1,4 +1,3 @@
-
 export const pricingPlans = [
   {
     name: "Basic",
@@ -10,8 +9,8 @@ export const pricingPlans = [
       "Email support",
     ],
     id: "basic",
-    paymentLink:  "https://buy.stripe.com/test_3cscMQcF8548gz6cMM",
-    priceId:  "price_1RA9yVCTlpmJdURCo5eDA5T5",
+    paymentLink: "https://buy.stripe.com/test_3cscMQcF8548gz6cMM",
+    priceId: "price_1RA9yVCTlpmJdURCo5eDA5T5",
   },
   {
     name: "Pro",
@@ -25,7 +24,7 @@ export const pricingPlans = [
     ],
     id: "pro",
     paymentLink: "https://buy.stripe.com/test_28o7sw7kO7cg6Yw7st",
-    priceId:  "price_1RA9yVCTlpmJdURCk8Oi1pwO",
+    priceId: "price_1RA9yVCTlpmJdURCk8Oi1pwO",
   },
 ];
 
@@ -40,15 +39,25 @@ export const containerVariants = {
   },
 };
 
+// export const itemVariants = {
+//   hidden: { opacity: 0, y: 20 },
+//   visible: {
+//     opacity: 1,
+//     transition: {
+//       type: "spring",
+//       damping: 15,
+//       stiffness: 50,
+//       duration: 0.8,
+//     },
+//   },
+// };
+
 export const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
-    transition: {
-      type: "spring",
-      damping: 15,
-      stiffness: 50,
-      duration: 0.8,
-    },
+    y: 0,
+    // 👇 "as const" lagane se TypeScript chup ho jayega
+    transition: { type: "spring" as const, stiffness: 100 },
   },
 };
