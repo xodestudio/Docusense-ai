@@ -5,28 +5,24 @@ import Link from "next/link";
 import { MotionDiv, MotionH1, MotionH2, MotionSection, MotionSpan } from "../common/motion-wrapper";
 import { containerVariants, itemVariants } from "@/utils/constants";
 
-// const buttonVariants = {
-//   scale:1.05,
-//   transition:{
-//     type:"spring",
-//     damping:10,
-//     stiffness:300,
-//   }
-// }
-
-// components/home/hero-section.tsx ke andar dhoondein
-
+// 👇 FIX: "as const" lagaya hai taake TypeScript khush rahe
 const buttonVariants = {
-  hover: {
-    scale: 1.05,
-    // 👇 Yahan check karein, "as const" hona zaroori hai
-    transition: { type: "spring" as const, damping: 10, stiffness: 100 }
+  scale: 1.05,
+  transition: {
+    type: "spring" as const,
+    damping: 10,
+    stiffness: 300,
   }
 };
 
 export default function HeroSection() {
   return (
-    <MotionSection variants={containerVariants} initial="hidden" animate="visible" className="relative mx-auto flex flex-col z-0 items-center justify-center py-16 sm:py-20 lg:pb-28 transition-all animate-in lg:px-12 max-w-7xl">
+    <MotionSection 
+      variants={containerVariants} 
+      initial="hidden" 
+      animate="visible" 
+      className="relative mx-auto flex flex-col z-0 items-center justify-center py-16 sm:py-20 lg:pb-28 transition-all animate-in lg:px-12 max-w-7xl"
+    >
 
       {/* Badge */}
       <MotionDiv variants={itemVariants} className="relative p-[1px] overflow-hidden rounded-full bg-linear-to-r from-rose-200 via-rose-500 to-rose-800 animate-gradient-x group">
