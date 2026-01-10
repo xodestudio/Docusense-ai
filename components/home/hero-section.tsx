@@ -5,14 +5,24 @@ import Link from "next/link";
 import { MotionDiv, MotionH1, MotionH2, MotionSection, MotionSpan } from "../common/motion-wrapper";
 import { containerVariants, itemVariants } from "@/utils/constants";
 
+// const buttonVariants = {
+//   scale:1.05,
+//   transition:{
+//     type:"spring",
+//     damping:10,
+//     stiffness:300,
+//   }
+// }
+
+// components/home/hero-section.tsx ke andar dhoondein
+
 const buttonVariants = {
-  scale:1.05,
-  transition:{
-    type:"spring",
-    damping:10,
-    stiffness:300,
+  hover: {
+    scale: 1.05,
+    // 👇 Yahan check karein, "as const" hona zaroori hai
+    transition: { type: "spring" as const, damping: 10, stiffness: 100 }
   }
-}
+};
 
 export default function HeroSection() {
   return (
