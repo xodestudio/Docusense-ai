@@ -2,16 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CreditCard, Lock, Tag } from "lucide-react";
+import { ArrowLeft, Lock, Tag } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { changeSubscription } from "@/actions/upgrade-action"; 
+import { changeSubscription } from "@/actions/upgrade-action";
+import { useUser } from "@clerk/nextjs"; // 👈 1. Import added
 
 export default function UpgradePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  
+  // 👈 2. Get User Email dynamically
+  const { user } = useUser();
+  const userEmail = user?.primaryEmailAddress?.emailAddress || "";
 
   // --- PLANS SETUP ---
   const planParam = searchParams.get("plan"); 
@@ -182,7 +187,8 @@ export default function UpgradePage() {
             <form onSubmit={handlePayment} className="space-y-5">
                 <div className="space-y-1.5">
                     <label className="text-[13px] font-medium text-[#30313d]">Email</label>
-                    <Input type="email" value="user@example.com" readOnly className="h-[44px] bg-gray-50 text-gray-500" />
+                    {/* 👇 3. Updated Input: Use userEmail variable */}
+                    <Input type="email" value={userEmail} readOnly className="h-[44px] bg-gray-50 text-gray-500" />
                 </div>
 
                 <div className="space-y-1.5">
@@ -195,14 +201,14 @@ export default function UpgradePage() {
                         />
                         <div className="flex divide-x divide-gray-200 border-t border-gray-200">
                             <Input placeholder="MM / YY" className="border-none rounded-none h-[44px] focus-visible:ring-0 w-1/2" value={expiry} onChange={formatExpiry} maxLength={7} required />
-                            <Input placeholder="CVC" className="border-none rounded-none h-[44px] focus-visible:ring-0 w-1/2" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").substring(0, 4))} maxLength={4} required />
+                            <Input placeholder="CVC" className="border-none rounded-none h-[44px] focus-visible:ring-0 w-1/2" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").substring(0, 3))} maxLength={3} required />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-1.5">
                     <label className="text-[13px] font-medium text-[#30313d]">Name on card</label>
-                    <Input placeholder="Ali Haider" className="h-[44px] border-gray-300 shadow-sm focus:border-[#0074d4] focus:ring-1 focus:ring-[#0074d4]" value={nameOnCard} onChange={(e) => setNameOnCard(e.target.value)} required />
+                    <Input placeholder="Card Holder Name" className="h-[44px] border-gray-300 shadow-sm focus:border-[#0074d4] focus:ring-1 focus:ring-[#0074d4]" value={nameOnCard} onChange={(e) => setNameOnCard(e.target.value)} required />
                 </div>
 
                 <div className="space-y-1.5">

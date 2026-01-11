@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Crown } from "lucide-react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 export default async function PlanBadge() {
   const user = await currentUser();
@@ -20,11 +21,11 @@ export default async function PlanBadge() {
 
   if (!priceId) {
     return (
-        <a href="/dashboard/upgrade">
+        <Link href="/#pricing">
             <Button size="sm" className="bg-amber-400 hover:bg-amber-500 text-black font-bold ml-2 h-8">
                 <Crown className="w-3 h-3 mr-1" /> Buy a plan
             </Button>
-        </a>
+        </Link>
     )
 }
 

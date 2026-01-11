@@ -1,88 +1,160 @@
-# 📄 Summarie – Transform PDFs into Beautiful, AI-Powered Summaries
+# 📄 Docusense AI – Chat with your PDFs
 
-Summarie is a powerful web application that turns your lengthy PDF documents into concise, engaging, and emoji-rich summaries – like a visual reel of your content. Built with cutting-edge technologies including **Next.js 15**, **Gemini AI**, **Clerk**, **Langchain**, and more.
+![Project Banner](https://via.placeholder.com/1280x640.png?text=Docusense+AI+Preview)
+_(Note: Replace this link with a screenshot of your actual dashboard)_
 
-![Project Image]()
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Stripe](https://img.shields.io/badge/Stripe-Payment-635BFF?style=for-the-badge&logo=stripe)](https://stripe.com/)
+[![NeonDB](https://img.shields.io/badge/Neon-Serverless_Postgres-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
 
----
-
-## ⚡ Features
-
-### 🔧 Core Technologies:
-
-- 🚀**Next.js 15 App Router** – for server-side rendering, routing, and API endpoints using Server Components.
-- ❄️**React** – for building dynamic and interactive user interfaces.
-- 🔑**Clerk** – for secure, modern authentication (Passkeys, GitHub, Google).
-- 🤖**Gemini AI** – for powerful AI-driven summarization with contextual understanding.
-- 🧠**Langchain** – for parsing PDFs, extracting text, and chunking documents efficiently.
-- 🎨**ShadCN UI** – for clean, accessible, and customizable UI components.
-- 💾**NeonDB (PostgreSQL)** – for serverless, scalable database storage of user data and summaries.
-- 🖨️**UploadThing** – for secure PDF file uploads (up to 32MB).
-- 💰**Stripe** – for subscription plans, billing, and payment handling.
-- 📜**TypeScript** – for type safety and better development experience.
-- 💅**Tailwind CSS 4** – for modern, utility-first styling.
+**Docusense AI** is a production-ready SaaS application that leverages the power of Large Language Models (LLMs) to transform lengthy PDF documents into concise, actionable insights. Built with a focus on scalability, security, and user experience.
 
 ---
 
-### ⚙️ Application Features:
+## ⚡ Key Features
 
-- 📚 Clear, structured, AI-powered summaries with key points.
-- 🎥 Interactive summary viewer with beautiful styling and progress tracking.
-- 🔐 Secure file uploads and processing.
-- 🧑‍💼 Protected routes and authenticated dashboard.
-- 💳 Flexible pricing plans (Basic & Pro) with Stripe.
-- 📩 Webhook handling for Stripe events.
-- 📂 User dashboard to view/manage all summaries.
-- 📱 Fully responsive design (mobile + desktop).
-- 🚀 Real-time updates and path revalidation.
-- 🔔 Toast notifications for uploads, processing, and errors.
-- 🧠 SEO-friendly metadata generation for summaries.
-- ⚡ Production-ready, optimized for speed and UX.
+### 🧠 AI & Logic
+
+- **Smart Summarization:** Utilizes **Google Gemini AI** via **LangChain** to understand context and generate accurate summaries.
+- **Vector Embeddings:** Efficient text chunking and parsing for handling large documents.
+- **RAG Implementation:** Retrieval-Augmented Generation flow for precise data extraction.
+
+### 🏗️ Architecture & UI
+
+- **Next.js 16 (App Router):** Leveraging Server Actions, React Server Components (RSC), and Turbopack for lightning-fast performance.
+- **Responsive Design:** Beautifully crafted UI using **ShadCN UI** and **Tailwind CSS 4**.
+- **Interactive Viewer:** A polished PDF viewer and summary reel experience.
+
+### 🔐 Security & Database
+
+- **Robust Auth:** Enterprise-grade authentication via **Clerk** (Social Logins, MFA protection).
+- **Serverless Database:** Scalable PostgreSQL storage using **NeonDB**.
+- **Secure Uploads:** File handling managed by **UploadThing** with strict type validation.
+
+### 💰 Monetization (SaaS)
+
+- **Subscription Model:** Integrated **Stripe** checkout for Basic vs. Pro plans.
+- **Webhook Handling:** Real-time synchronization of payment status and user access rights.
+- **Usage Limits:** Logic to restrict Free tier usage vs. Pro tier capabilities.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category           | Technology                              |
+| ------------------ | --------------------------------------- |
+| **Framework**      | Next.js 16 (App Router)                 |
+| **Language**       | TypeScript                              |
+| **Styling**        | Tailwind CSS 4, ShadCN UI, Lucide Icons |
+| **Authentication** | Clerk                                   |
+| **Database**       | NeonDB (PostgreSQL)                     |
+| **AI Model**       | Google Gemini Pro                       |
+| **Orchestration**  | LangChain                               |
+| **Payments**       | Stripe                                  |
+| **File Storage**   | UploadThing                             |
+| **Deployment**     | Vercel                                  |
 
 ---
 
 ## 🚀 Getting Started
 
-To run this project locally:
+Follow these steps to set up the project locally.
 
-1. **Fork this repository**
-2. **Clone your fork**
-   ```bash
-   git clone https://github.com/your-username/Summarie.git
-   cd Summarie
-3. Create the required credentials:
-    - Gemini API key
-    - Clerk authentication
-    - UploadThing configuration
-    - Stripe payment setup
-    - NeonDB database connection
-4. Install dependencied with `npm install`
-5. Run the development server with `npm run dev`
+### 1. Clone the repository
+
+```bash
+git clone [https://github.com/xodestudio/Docusense-ai.git](https://github.com/xodestudio/Docusense-ai.git)
+cd Docusense-ai
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3. Environment Variables
+
+Create a `.env` file in the root directory and set the following environment variables:
+
+```env
+# Clerk Auth
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Database (Neon)
+DATABASE_URL=postgresql://user:password@ep-xyz.aws.neon.tech/neondb?sslmode=require
+
+# AI & Processing
+GOOGLE_API_KEY=AIzaSy...
+
+# File Uploads
+UPLOADTHING_SECRET=sk_live_...
+UPLOADTHING_APP_ID=...
+
+# Stripe Payments
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# Base URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 4. Run the development server
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
 ---
 
-## 🙏 Acknowledgements
+## 📦 Screenshots
 
-- [Clerk](https://clerk.com/) for authentication
-- [GeminiAI](https://gemini.google.com/app) for gemini api
-- [Langchain](https://www.langchain.com/) for document processing
-- [ShadCN](https://ui.shadcn.com/) for components
+### Dashboard
+
+![Dashboard Screenshot](https://via.placeholder.com/800x400.png?text=Dashboard+Screenshot)
+
+### PDF Viewer
+
+![PDF Viewer Screenshot](https://via.placeholder.com/800x400.png?text=PDF+Viewer+Screenshot)
+
+### Summary Reel
+
+![Summary Reel Screenshot](https://via.placeholder.com/800x400.png?text=Summary+Reel+Screenshot)
 
 ---
 
-## 📜 License
-This project is licensed under the MIT License.
+## 🤝 Contributing
+
+Contributions are always welcome! This project is open-source.
+
+1. Fork the repository.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
 ---
 
-## 🙌 Contributing
-Contributions are welcome! Feel free to open issues or submit pull requests.
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 📧 Contact
-For questions or suggestions, reach out to **[Rajal Srivastava](https://github.com/rajalsrivastava)**.
 
-- **LinkedIn:** [Rajal Srivastava](https://www.linkedin.com/in/rajalsrivastava)
-- **Email:** [rajal10srivastava@gmail.com](mailto:rajal10srivastava@gmail.com)
-- **Twitter:** [@rajalsrivastava](https://twitter.com/rajalsrivastava)
+For questions or suggestions, reach out to **[Ali Haider](https://github.com/xodestudio)**.
+
+- **LinkedIn:** [Ali Haider](https://www.linkedin.com/in/xodestudio)
+- **Email:** [alidevofficial@gmail.com](mailto:alidevofficial@gmail.com)
+- **Twitter:** [Ali Haider](https://twitter.com/xodestudio)
