@@ -4,18 +4,24 @@ import { Skeleton } from "../ui/skeleton";
 
 export default function LoadingSkeleton() {
   return (
-    <Card className="relative px-2 h-[700px] w-[600px] max-w-lg mx-auto overflow-hidden bg-linear-to-br from-background via-background/95 to-rose-500/5 backdrop-blur-lg shadow-2xl rounded-3xl border border-rose-500/10">
-      {/* Loading Progress Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-background/80 backdrop-blur-xs pt-4 pb-2 border-b border-rose-500/10">
+    <Card className="relative flex flex-col h-[500px] sm:h-[600px] lg:h-[700px] w-full xl:w-[600px] max-w-lg mx-auto overflow-hidden rounded-[2rem] border border-border/60 bg-card/50 shadow-2xl backdrop-blur-xl">
+      
+      {/* 🚀 SCANNER ANIMATION: Moving Laser Beam */}
+      <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden rounded-[2rem]">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/80 to-transparent shadow-[0_0_20px_2px_rgba(124,58,237,0.5)] animate-scan" />
+      </div>
+
+      {/* Loading Progress Bar (Top) */}
+      <div className="absolute top-0 left-0 right-0 z-20 bg-background/80 backdrop-blur-md pt-4 pb-2 border-b border-border/40">
         <div className="px-4 flex gap-1.5">
           {[1, 2, 3].map((_, index) => (
             <div
               key={index}
-              className="h-1.5 flex-1 rounded-full bg-rose-500/10 overflow-hidden"
+              className="h-1.5 flex-1 rounded-full bg-primary/10 overflow-hidden"
             >
               <div
                 className={cn(
-                  "h-full bg-linear-to-r from-gray-500 to-rose-600 animate-pulse",
+                  "h-full bg-gradient-to-r from-primary/50 to-primary animate-pulse",
                   index === 0 ? "w-full" : "w-0"
                 )}
               />
@@ -25,47 +31,46 @@ export default function LoadingSkeleton() {
       </div>
 
       {/* Loading Content */}
-
-      <div className="h-full overflow-y-auto scrollbar-hide pt-16 pb-24">
-        <div className="px-6">
-          {/* Loading Title */}
-
-          <div className="flex flex-col gap-2 mb-6 sticky top-0 pt-2 pb-4 bg-background/80 backdrop-blur-xs z-10">
-            <Skeleton className="h-12 w-3/4 mx-auto bg-rose-500/10" />
+      {/* 👇 FIX: Scrollbar Hiding Code Added Here */}
+      <div className="flex-1 overflow-y-auto pt-16 pb-24 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="px-5 sm:px-8">
+          
+          {/* Loading Title (Sticky) */}
+          <div className="sticky top-0 z-10 mb-6 bg-background/95 pt-2 pb-4 backdrop-blur-md border-b border-border/40 flex justify-center">
+            <Skeleton className="h-8 w-3/4 rounded-lg bg-primary/10" />
           </div>
 
           {/* Loading Points */}
-
           <div className="space-y-4">
-            {/* Numbered Point Skeletons */}
-
+            
+            {/* Mocking the "EmojiPoint" style */}
             {[1, 2, 3].map((_, index) => (
               <div
-                key={`numbered-${index}`}
-                className="group relative bg-linear-to-br from-gray-500/[0.08] to-gray-600/[0.03] p-4 rounded-2xl border border-gray-500/10"
+                key={`point-${index}`}
+                className="relative rounded-xl border border-border/40 bg-white/50 p-5 shadow-sm"
               >
-                <div className="relative flex gap-4 items-center">
-                  <div className="flex items-center">
-                    <Skeleton className="h-8 w-8 rounded-full bg-rose-500/10" />
-                  </div>
-
-                  <div className="flex-1">
-                    <Skeleton className="h-6 w-full bg-rose-500/10" />
+                <div className="flex items-start gap-4">
+                  {/* Icon Skeleton */}
+                  <Skeleton className="h-10 w-10 shrink-0 rounded-lg bg-primary/10" />
+                  
+                  {/* Text Lines */}
+                  <div className="flex-1 space-y-2 py-1">
+                    <Skeleton className="h-4 w-full bg-muted/60" />
+                    <Skeleton className="h-4 w-4/5 bg-muted/60" />
                   </div>
                 </div>
               </div>
             ))}
 
-            {/* Emoji Point Skeletons */}
-
+            {/* Mocking "RegularPoint" style */}
             {[1, 2].map((_, index) => (
               <div
-                key={`emoji-${index}`}
-                className="group relative bg-linear-to-br from-gray-200/[0.08] to-gray-400/[0.03] p-4 rounded-2xl border border-gray-500/10"
+                key={`reg-${index}`}
+                className="rounded-xl border border-border/30 bg-white/40 p-4"
               >
-                <div className="relative flex items-center gap-3">
-                  <Skeleton className="h-6 w-6 rounded-full bg-rose-500/10 shrink-0" />
-                  <div className="h-6 w-full bg-rose-500/10"></div>
+                <div className="space-y-2">
+                   <Skeleton className="h-4 w-full bg-muted/50" />
+                   <Skeleton className="h-4 w-2/3 bg-muted/50" />
                 </div>
               </div>
             ))}
@@ -74,19 +79,20 @@ export default function LoadingSkeleton() {
       </div>
 
       {/* Loading Navigation */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-xs border-t border-rose-500/10">
-        <div className="flex justify-between items-center">
-          <Skeleton className="rounded-full w-12 h-12 bg-linear-to-br from-rose-500/50 to-rose-600/50 " />
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border z-20">
+        <div className="flex justify-between items-center max-w-2xl mx-auto">
+          {/* Previous Button Skeleton */}
+          <Skeleton className="rounded-full w-10 h-10 bg-primary/5" />
 
-          <div className="flex gap-2">
-            {[1, 2, 3].map((_, index) => (
-              <Skeleton
-                key={index}
-                className="h-2 w-2 rounded-full bg-rose-500/20"
-              />
-            ))}
+          {/* Pagination Dots Skeleton */}
+          <div className="flex gap-1.5">
+            <Skeleton className="h-2 w-8 rounded-full bg-primary/20" /> {/* Active Pill */}
+            <Skeleton className="h-2 w-2 rounded-full bg-primary/10" />
+            <Skeleton className="h-2 w-2 rounded-full bg-primary/10" />
           </div>
-          <Skeleton className="rounded-full w-12 h-12 bg-linear-to-br from-rose-500/50 to-rose-600/50" />
+          
+          {/* Next Button Skeleton */}
+          <Skeleton className="rounded-full w-10 h-10 bg-primary/20" />
         </div>
       </div>
     </Card>

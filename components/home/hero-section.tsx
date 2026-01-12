@@ -1,19 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { MotionDiv, MotionH1, MotionH2, MotionSection, MotionSpan } from "../common/motion-wrapper";
+import { MotionDiv, MotionH1, MotionH2, MotionSection } from "../common/motion-wrapper";
 import { containerVariants, itemVariants } from "@/utils/constants";
-
-// 👇 FIX: "as const" lagaya hai taake TypeScript khush rahe
-const buttonVariants = {
-  scale: 1.05,
-  transition: {
-    type: "spring" as const,
-    damping: 10,
-    stiffness: 300,
-  }
-};
+import BgGradient from "../common/bg-gradient";
 
 export default function HeroSection() {
   return (
@@ -21,49 +12,61 @@ export default function HeroSection() {
       variants={containerVariants} 
       initial="hidden" 
       animate="visible" 
-      className="relative mx-auto flex flex-col z-0 items-center justify-center py-16 sm:py-20 lg:pb-28 transition-all animate-in lg:px-12 max-w-7xl"
+      className="relative mx-auto flex flex-col z-0 items-center justify-center pt-10 pb-24 lg:pt-16 lg:pb-32 overflow-hidden px-4 max-w-7xl text-center"
     >
 
-      {/* Badge */}
-      <MotionDiv variants={itemVariants} className="relative p-[1px] overflow-hidden rounded-full bg-linear-to-r from-rose-200 via-rose-500 to-rose-800 animate-gradient-x group">
+      {/* Background Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 opacity-40 pointer-events-none">
+          <BgGradient className="top-[-20%] w-[80%] h-[60%] blur-[100px] from-primary/30 via-purple-500/20 to-transparent" />
+      </div>
+
+      {/* 1. Tech Badge */}
+      <MotionDiv variants={itemVariants} className="mb-4">
         <Badge
-          variant={"secondary"}
-          className="relative px-6 py-2 text-base font-medium bg-white rounded-full group-hover:bg-gray-50 transition-colors duration-200"
+          variant={"outline"}
+          className="relative px-4 py-1.5 text-sm font-medium rounded-full border-primary/20 bg-white/50 dark:bg-black/20 text-primary backdrop-blur-md shadow-sm hover:bg-primary/5"
         >
-          <Sparkles className="h-6 w-6 mr-1 min-w-[28px] min-h-[28px] text-rose-600 animate-pulse" />
-          <p className="text-base text-rose-600">Powered by AI</p>
+          <Bot className="h-4 w-4 mr-2 text-primary" />
+          <span>AI-Powered Summaries & Insights</span>
         </Badge>
       </MotionDiv>
 
-      {/* Title */}
-      <MotionH1 variants={itemVariants} className="font-bold py-6 text-center">
-        Transform PDFs into{" "}
-        <span className="relative inline-block">
-          <MotionSpan whileHover={buttonVariants} className="relative z-10 px-2">concise</MotionSpan>
+      {/* 2. Headline */}
+      <MotionH1 variants={itemVariants} className="font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight text-foreground leading-[1.15]">
+        Unlock the hidden <br className="hidden sm:block" /> knowledge in your{" "}
+        <span className="relative inline-block whitespace-nowrap">
+          <span className="relative z-10 text-white px-3 py-1">
+             documents
+          </span>
+          {/* Highlight Box (Purple) */}
           <span
-            className="absolute inset-0 bg-rose-200/50 -rotate-2 rounded-lg transform -skew-y-1"
+            className="absolute inset-0 bg-primary -rotate-2 rounded-xl transform -skew-y-1 shadow-lg shadow-primary/30 origin-bottom-right"
             aria-hidden="true"
           ></span>
-        </span>{" "}
-        summaries
+        </span>
       </MotionH1>
 
-      {/* Description */}
-      <MotionH2 variants={itemVariants} className="text-lg sm:text-xl lg:text-2xl text-center px-4 lg:px-0 lg:max-w-4xl text-gray-600">
-        Get a beautiful summary reel of the document in seconds.
+      {/* 3. Description */}
+      <MotionH2 variants={itemVariants} className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        Stop wasting hours reading long PDFs. Upload contracts, research papers, or reports and let our AI <span className="text-foreground font-medium">summarize and explain</span> them instantly.
       </MotionH2>
 
-      {/* Button */}
-      <MotionDiv variants={itemVariants} whileHover={buttonVariants}>
+      {/* 4. CTA Button (Stable) */}
+      <MotionDiv variants={itemVariants} className="mt-8 sm:mt-10 flex flex-col items-center">
         <Button
-          variant={"link"}
-          className="text-white mt-6 text-base sm:text-lg lg:text-xl rounded-full px-8 sm:px-10 lg:px-12 py-6 sm:py-7 lg:py-8 lg:mt-16 bg-linear-to-r from-slate-900 to-rose-500 hover:from-rose-500 hover:to-slate-900 hover:no-underline font-bold shadow-lg transition-all duration-300"
+          asChild
+          size="lg"
+          className="h-14 px-8 text-lg font-semibold rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 text-white shadow-xl shadow-primary/25 transition-all duration-300 border-0"
         >
-          <Link href="/#pricing" className="flex gap-2 items-center">
-            <span>Try Summarie</span>
-            <ArrowRight className="animate-pulse" />
+          <Link href="/dashboard" className="flex gap-2 items-center">
+            <span>Get Started for Free</span>
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </Button>
+        
+        <p className="mt-4 text-xs font-medium text-muted-foreground/60">
+            No credit card required • 100% Free for Students
+        </p>
       </MotionDiv>
     </MotionSection>
   );

@@ -1,33 +1,48 @@
 import { Sparkles } from "lucide-react";
-
 import { Badge } from "../ui/badge";
 import { MotionDiv } from "../common/motion-wrapper";
 import { itemVariants } from "@/utils/constants";
+
 export default function UploadHeader() {
   return (
-    <div className="flex flex-col items-center justify-center gap-6 text-center">
-      <MotionDiv variants={itemVariants} className="relative p-[1px] overflow-hidden rounded-full bg-linear-to-r from-rose-200 via-rose-500 to-rose-800 animate-gradient-x group">
+    <div className="flex flex-col items-center justify-center gap-6 text-center mt-10">
+      
+      {/* 1. Modern Badge (Clean Outline) */}
+      <MotionDiv variants={itemVariants}>
         <Badge
-          variant="secondary"
-          className="relative px-6 py-2 text-base font-medium bg-white rounded-full group-hover:bg-gray-50 transition-colors"
+          variant="outline"
+          className="relative px-4 py-1.5 text-sm font-medium rounded-full border-primary/20 bg-primary/5 text-primary backdrop-blur-sm shadow-sm"
         >
-          <Sparkles className="h-6 w-6 mr-1 min-w-[28px] min-h-[28px] text-rose-600 animate-pulse" />
-          <p className="text-base">AI-Powered Content Creation</p>
+          <Sparkles className="h-4 w-4 mr-2 text-primary animate-pulse" />
+          <span>AI-Powered Content Creation</span>
         </Badge>
       </MotionDiv>
-      <MotionDiv variants={itemVariants} className="capitalize text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+
+      {/* 2. Title with Purple Highlight */}
+      <MotionDiv 
+        variants={itemVariants} 
+        className="capitalize text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl"
+      >
         Start Uploading{" "}
-        <span className="relative inline-block">
-          <span className="relative z-10 px-2">Your PDF's</span>
+        <span className="relative inline-block px-2">
+          {/* Text needs to be white to contrast with purple box */}
+          <span className="relative z-10 text-white">Your PDFs</span>
+          {/* Purple Background Box */}
           <span
-            className="absolute inset-0 bg-rose-200/50 -rotate-2 rounded-lg transform -skew-y-1"
+            className="absolute inset-0 bg-primary -rotate-2 rounded-lg transform -skew-y-1 shadow-lg shadow-primary/30"
             aria-hidden="true"
           ></span>
-        </span>{" "}
+        </span>
       </MotionDiv>
-      <MotionDiv variants={itemVariants} className="mt-2 text-lg leading-8 text-gray-600 max-w-2xl text-center">
-        {" "}
-        <p>Upload your PDF and let our AI do the magic! ✨</p>
+
+      {/* 3. Subtitle */}
+      <MotionDiv 
+        variants={itemVariants} 
+        className="text-lg text-muted-foreground max-w-xl text-center leading-relaxed"
+      >
+        <p>
+          Upload your documents below and let our AI extract insights, summaries, and key points in seconds. ✨
+        </p>
       </MotionDiv>
     </div>
   );

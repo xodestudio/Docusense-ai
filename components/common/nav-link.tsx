@@ -15,13 +15,18 @@ export default function NavLink({
   const pathname = usePathname();
   const isActive =
     pathname === href || (href !== "/" && pathname.startsWith(href));
+  
   return (
     <Link
       href={href}
       className={cn(
-        "transition-colors text-sm duration-200 text-gray-600 hover:text-rose-500",
-        className,
-        isActive && "text-rose-500"
+        // Base: Thora bold, smooth transition
+        "text-sm font-medium transition-colors duration-200",
+        // Default: Muted Grey jo hover par Primary (Indigo) ban jaye
+        "text-muted-foreground hover:text-primary",
+        // Active: Agar selected hai to Primary color + thora aur bold
+        isActive && "text-primary font-semibold",
+        className
       )}
     >
       {children}

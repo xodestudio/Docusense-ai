@@ -1,18 +1,26 @@
 import { parseEmojiPoint, parsePoint } from "@/utils/summary-helper";
 import { MotionDiv } from "../common/motion-wrapper";
 import { containerVariants, itemVariants } from "@/utils/constants";
+import { cn } from "@/lib/utils";
 
 const EmojiPoint = ({ point }: { point: string }) => {
   const { emoji, text } = parseEmojiPoint(point) ?? {};
   return (
     <MotionDiv
       variants={itemVariants}
-      className="group relative bg-linear-to-br from-gray-200/[0.08] to-gray-400/[0.03] p-4 rounded-2xl border border-gray-500/10 hover:shadow-lg transition-all"
+      className="group relative overflow-hidden rounded-xl border border-border/40 bg-white/50 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-primary/20 hover:bg-white/80 hover:shadow-md hover:shadow-primary/5"
     >
-      <div className="absolute inset-0 bg-linear-to-r from-gray-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-      <div className="relative flex items-start gap-3">
-        <span className="text-lg lg:text-xl shrink-0 pt-1">{emoji}</span>
-        <p className="text-lg lg:text-xl text-muted-foreground/90 leading-relaxed">
+      {/* Side Accent Line (Hover par dikhegi) */}
+      <div className="absolute left-0 top-0 h-full w-1 bg-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      
+      <div className="relative flex items-start gap-4">
+        {/* Emoji Container */}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-xl group-hover:scale-110 transition-transform duration-300">
+            {emoji}
+        </div>
+        
+        {/* Text */}
+        <p className="text-base lg:text-lg leading-relaxed text-foreground/90 font-medium">
           {text}
         </p>
       </div>
@@ -24,11 +32,9 @@ const RegularPoint = ({ point }: { point: string }) => {
   return (
     <MotionDiv
       variants={itemVariants}
-      className="group relative bg-linear-to-br from-gray-200/[0.08] to-gray-400/[0.03] p-4 rounded-2xl border border-gray-500/10 hover:shadow-lg transition-all"
+      className="group relative rounded-xl border border-border/30 bg-white/40 p-4 transition-all duration-300 hover:bg-white/60 hover:border-primary/10"
     >
-      <div className="absolute inset-0 bg-linear-to-r from-gray-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-
-      <p className="relativetext-lg lg:text-xl text-muted-foreground/90 leading-relaxed text-left">
+      <p className="text-base lg:text-lg leading-relaxed text-muted-foreground text-left group-hover:text-foreground/80 transition-colors">
         {point}
       </p>
     </MotionDiv>
@@ -49,7 +55,7 @@ export default function ContentSection({
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="space-y-4"
+      className="space-y-3"
     >
       {points.map((point, index) => {
         const { isMainPoint, hasEmoji, isEmpty } = parsePoint(point);

@@ -61,8 +61,8 @@ export default function UploadForm() {
 
       setIsLoading(true);
 
-      toast("📄 Uploading PDF...", {
-        description: "We are uploading your PDF!",
+      toast.info("Uploading PDF...", {
+        description: "Please wait while we secure your file.",
       });
 
       // 2. Upload to UploadThing
@@ -74,11 +74,10 @@ export default function UploadForm() {
         return;
       }
 
-      // 👇 Fix: URL direct access karo
       const uploadFileUrl = uploadResponse[0].url;
 
-      toast("⏳ Processing PDF...", {
-        description: "Hang tight! Our AI is reading through your document! ✨",
+      toast.info("Processing PDF...", {
+        description: "Our AI is analyzing document structure...",
       });
 
       // 3. Generate Summary (Server Action 1)
@@ -93,9 +92,9 @@ export default function UploadForm() {
         return;
       }
 
-      // 4. Save Summary (Server Action 2 - Timeout Reset Strategy)
-      toast("💾 Saving PDF...", {
-        description: "Almost done! Saving your summary! ✨",
+      // 4. Save Summary (Server Action 2)
+      toast.info("Finalizing...", {
+        description: "Saving your summary to the dashboard.",
       });
 
       const storeResult = await storePdfSummaryAction({
@@ -106,8 +105,8 @@ export default function UploadForm() {
       });
 
       if (storeResult.success && storeResult.data) {
-        toast.success("✨ Summary Generated!", {
-          description: "Your summary has been successfully saved",
+        toast.success("Success!", {
+          description: "Summary generated successfully.",
         });
 
         formRef.current?.reset();
@@ -127,31 +126,31 @@ export default function UploadForm() {
 
   return (
     <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
+      
+      {/* 1. Divider / Label */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-gray-200 dark:border-gray-800" />
+          {/* Changed fixed gray to theme border */}
+          <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-background px-3 text-muted-foreground text-sm">
-            Upload PDF
+          <span className="bg-background px-4 text-muted-foreground text-sm font-medium uppercase tracking-wider">
+            {isLoading ? "AI Analysis in Progress" : "Upload New PDF"}
           </span>
         </div>
       </div>
 
+      {/* 2. Content Area */}
       {isLoading ? (
-        <>
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-gray-200 dark:border-gray-800" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-background px-3 text-muted-foreground text-sm animate-pulse">
-                Processing AI Summary...
-              </span>
-            </div>
-          </div>
-          <LoadingSkeleton />
-        </>
+        <div className="animate-in fade-in zoom-in duration-500">
+           {/* Loading Skeleton */}
+           <LoadingSkeleton />
+           
+           {/* Cancel Hint */}
+           <p className="text-center text-xs text-muted-foreground mt-4 animate-pulse">
+              This may take up to 30 seconds for large files. Do not close the tab.
+           </p>
+        </div>
       ) : (
         <UploadFormInput
           isLoading={isLoading}

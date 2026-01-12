@@ -1,5 +1,5 @@
 "use client";
-import { Trash2 } from "lucide-react";
+import { Trash2, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
 import { useState, useTransition } from "react";
 import { deleteSummaryAction } from "@/actions/summary-actions";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface DeleteButtonProps {
   summaryId: string;
@@ -30,46 +31,58 @@ export default function DeleteButton({ summaryId }: DeleteButtonProps) {
         toast.error("Error", {
           description: "Failed to delete summary",
         });
+      } else {
+        toast.success("Deleted", {
+            description: "Summary deleted successfully",
+        });
       }
 
       setOpen(false);
     });
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {/* 👇 FIX: Yahan 'suppressHydrationWarning' add kiya hai */}
+        {/* 👇 FIX: Clean Subtle Button */}
         <Button
-          variant={"ghost"}
-          size={"icon"}
-          className="text-gray-400 bg-gray-50 border border-gray-200 hover:text-rose-600 hover:bg-rose-50"
-          suppressHydrationWarning={true} 
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 text-muted-foreground/60 transition-colors hover:bg-red-500/10 hover:text-red-600"
+          suppressHydrationWarning={true}
         >
           <Trash2 className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Summary</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this summary? This action cannot be
-            undone.
+      
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader className="gap-2">
+            {/* Warning Icon for better UX */}
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 mb-2">
+             <AlertTriangle className="h-6 w-6" />
+          </div>
+          <DialogTitle>Delete Summary?</DialogTitle>
+          <DialogDescription className="pt-2">
+            Are you sure you want to delete this summary? This action cannot be undone and will remove the file from your history.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+        
+        <DialogFooter className="gap-2 sm:gap-0 mt-4">
           <Button
-            variant="ghost"
-            className="bg-gray-50 border border-gray-200 hover:text-gray-600 hover:bg-gray-100"
+            variant="outline"
             onClick={() => setOpen(false)}
+            className="rounded-lg"
           >
             Cancel
           </Button>
+          
           <Button
             variant="destructive"
-            className=" bg-gray-900 border hover:bg-gray-600"
             onClick={handleDelete}
+            disabled={isPending}
+            className="rounded-lg bg-red-600 hover:bg-red-700 shadow-sm"
           >
-            {isPending ? "Deleting..." : "Delete"}
+            {isPending ? "Deleting..." : "Delete Summary"}
           </Button>
         </DialogFooter>
       </DialogContent>

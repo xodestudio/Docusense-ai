@@ -16,23 +16,33 @@ export function SourceInfo({
   createdAt: string;
 }) {
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-      <div className="flex items-center justify-center gap-2">
-        <FileText className="h-4 w-4 text-rose-400" />
-        <span>Source: {fileName}</span>
+    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 border-t border-border/40">
+      
+      {/* Left: File Info Badge */}
+      <div className="flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-1.5 text-xs lg:text-sm text-muted-foreground border border-border/50">
+        <FileText className="h-3.5 w-3.5 text-primary" />
+        <span className="truncate max-w-[200px] sm:max-w-xs">
+          Source: <span className="font-medium text-foreground">{fileName}</span>
+        </span>
       </div>
-      <div className="flex gap-2">
+
+      {/* Right: Actions */}
+      <div className="flex items-center gap-2">
+        
+        {/* View Original Button (Ghost Style) */}
         <Button
           variant={"ghost"}
           size={"sm"}
-          className="h-8 px-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+          className="h-8 gap-2 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
           asChild
         >
-          <a href={originalFileUrl} target="_black" rel="noopener noreferrer">
-            <ExternalLink className="h-4 w-4 mr-1" />
+          <a href={originalFileUrl} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="h-3.5 w-3.5" />
             View Original
           </a>
         </Button>
+
+        {/* Download Button (Already styled in previous step) */}
         <DownloadSummaryButton
           title={title}
           summaryText={summaryText}

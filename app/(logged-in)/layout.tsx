@@ -1,7 +1,7 @@
 import { hasActivePlan } from "@/lib/user";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import PlanGuard from "@/components/common/plan-guard"; // 👈 Naya component import karo
+import PlanGuard from "@/components/common/plan-guard"; 
 
 export default async function LoggedInLayout({
   children,
@@ -14,15 +14,8 @@ export default async function LoggedInLayout({
     redirect("/sign-in");
   }
 
-  // Database se check karo plan hai ya nahi
   const hasActiveSubscription = await hasActivePlan(user.emailAddresses[0].emailAddress);
 
-  // ❌ PURANA BLOCKING CODE HATA DO:
-  // if(!hasActiveSubscription){
-  //   return <UpgradeRequired/>
-  // }
-
-  // ✅ NAYA LOGIC: PlanGuard ko zimmedari de do
   return (
     <PlanGuard hasActiveSubscription={hasActiveSubscription}>
       {children}

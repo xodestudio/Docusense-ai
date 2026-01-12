@@ -4,7 +4,6 @@ import { SourceInfo } from "@/components/summaries/source-info";
 import { SummaryHeader } from "@/components/summaries/summary-header";
 import { SummaryViewer } from "@/components/summaries/summary-viewer";
 import { getSummaryById } from "@/lib/summaries";
-import { FileText } from "lucide-react";
 import { notFound } from "next/navigation";
 
 interface SummaryPageProps {
@@ -32,24 +31,32 @@ export default async function SummaryPage({ params }: SummaryPageProps) {
   const readingTime = Math.ceil((word_count || 0) / 200);
 
   return (
-    <div className="relative isolate min-h-screen bg-linear-to-b from-rose-50/40 to-white">
-      <BgGradient className="from-rose-400 via-rose-300 to-orange-200" />
+    <div className="relative isolate min-h-screen bg-background overflow-hidden">
+      
+      <BgGradient className="top-0 left-1/2 -translate-x-1/2 opacity-20 blur-[100px]" />
 
-      <div className="container mx-auto flex flex-col gap-4">
-        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-12 lg:py-24">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col"
-          >
+      {/* 👇 FIX 1: 'py-10' ko 'pt-4' kar diya taake header upar shift ho */}
+      <div className="container mx-auto flex flex-col gap-4 px-4 sm:px-6 lg:px-8 pt-6 pb-12 lg:pt-8">
+        
+        <MotionDiv
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center max-w-5xl mx-auto w-full"
+        >
+          
+          {/* Header Section */}
+          <div className="w-full">
             <SummaryHeader
               title={title}
               createdAt={created_at}
               readingTime={readingTime}
             />
+          </div>
 
-            {file_name && (
+          {/* 👇 FIX 2: 'mb-8' ko kam karke 'my-4' kar diya taake SourceInfo kareeb aaye */}
+          {file_name && (
+            <div className="w-full my-4 sticky top-4 z-30">
               <SourceInfo
                 title={title}
                 summaryText={summary_text}
@@ -57,29 +64,15 @@ export default async function SummaryPage({ params }: SummaryPageProps) {
                 createdAt={created_at}
                 originalFileUrl={original_file_url}
               />
-            )}
+            </div>
+          )}
 
-            <MotionDiv
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="relative mt-4 sm:mt-8 lg:mt-16"
-            >
-              <div className="relative p-4 sm:p-6 lg:p-8 bg-white/80 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-xl border border-rose-100/30 transition-all duration-300 hover:shadow-2xl hover:bg-white/90 max-w-4xl mx-auto">
-                <div className="absolute inset-0 bg-linear-to-r from-rose-50/50 via-orange-50/30 to-transparent opacity-50 rounded-2xl sm:rounded-3xl" />
+          {/* Main Viewer */}
+          <div className="w-full flex justify-center">
+            <SummaryViewer summary={summary_text} />
+          </div>
 
-                <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground bg-white/90 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-xs">
-                  <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-rose-400" />
-                  {word_count?.toLocaleString()} words
-                </div>
-
-                <div className="relative mt-8 sm:mt-6 flex justify-center">
-                  <SummaryViewer summary={summary_text} />
-                </div>
-              </div>
-            </MotionDiv>
-          </MotionDiv>
-        </div>
+        </MotionDiv>
       </div>
     </div>
   );
