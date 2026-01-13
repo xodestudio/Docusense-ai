@@ -11,10 +11,29 @@ interface UploadFormInputProps {
   isLoading: boolean;
 }
 
+// ✂️ Helper: Filename Truncator
+function truncateFileName(name: string, maxLength: number = 28) {
+  if (name === "No file chosen") return name;
+  if (name.length <= maxLength) return name;
+  
+  const extIndex = name.lastIndexOf(".");
+  // Agar extension nahi hai
+  if (extIndex === -1) return `${name.substring(0, maxLength)}...`;
+
+  const ext = name.substring(extIndex); // .pdf
+  const nameNoExt = name.substring(0, extIndex);
+  
+  // Logic: "Start..." + "End" + ".pdf"
+  const charsToShow = maxLength - ext.length - 3;
+  const frontChars = Math.ceil(charsToShow * 0.7);
+  const backChars = Math.floor(charsToShow * 0.3);
+  
+  return `${nameNoExt.substring(0, frontChars)}...${nameNoExt.slice(-backChars)}${ext}`;
+}
+
 const UploadFormInput = forwardRef<HTMLFormElement, UploadFormInputProps>(
   ({ onSubmit, isLoading }, ref) => {
     
-    // 👇 State to track filename for Custom UI
     const [fileName, setFileName] = useState<string>("No file chosen");
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,24 +63,27 @@ const UploadFormInput = forwardRef<HTMLFormElement, UploadFormInputProps>(
               onChange={handleFileChange}
             />
             
-            {/* 2. The Visual Layer (Perfectly Centered via Flexbox) */}
+            {/* 2. The Visual Layer */}
             <div className={cn(
                 "h-full w-full bg-background/50 backdrop-blur-sm border border-border/60 rounded-lg flex items-center px-4 py-3 transition-all group-hover:bg-background/80",
                 isLoading && "opacity-50 cursor-not-allowed"
             )}>
-                {/* Fake Button (Text Centered) */}
+                {/* Fake Button */}
                 <div className="shrink-0 bg-primary/10 text-primary text-sm font-semibold px-4 py-2 rounded-full mr-3 leading-none">
                     Choose file
                 </div>
                 
-                {/* Filename Text (Vertically Centered) */}
-                <span className="text-sm text-muted-foreground truncate leading-none">
-                    {fileName}
+                {/* Filename Text (Truncated) */}
+                <span className={cn(
+                    "text-sm truncate leading-none",
+                    fileName === "No file chosen" ? "text-muted-foreground" : "text-foreground font-medium"
+                )}>
+                    {truncateFileName(fileName)}
                 </span>
             </div>
           </div>
 
-          {/* Gradient Action Button */}
+          {/* Action Button */}
           <Button 
             disabled={isLoading} 
             type="submit"
@@ -79,13 +101,6 @@ const UploadFormInput = forwardRef<HTMLFormElement, UploadFormInputProps>(
               </>
             )}
           </Button>
-        </div>
-        
-        {/* Helper Text */}
-        <div className="w-full flex justify-center">
-            <p className="mt-3 text-xs text-muted-foreground text-center">
-                Supported files: PDF documents up to 10MB.
-            </p>
         </div>
       </form>
     );

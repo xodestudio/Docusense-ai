@@ -1,100 +1,150 @@
+"use client";
+
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, Brain, Search, FileText } from "lucide-react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Card } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
 
 export default function LoadingSkeleton() {
+  
+  // 🔄 Engaging Steps Logic
+  const steps = [
+      { text: "Scanning document...", icon: Search },
+      { text: "Extracting text layers...", icon: FileText },
+      { text: "Analyzing context...", icon: Brain },
+      { text: "Generating summary...", icon: Sparkles },
+  ];
+  
+  const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+      const interval = setInterval(() => {
+          setCurrentStep((prev) => (prev + 1) % steps.length);
+      }, 2500);
+      return () => clearInterval(interval);
+  }, []);
+
+  const CurrentIcon = steps[currentStep].icon;
+
   return (
-    <Card className="relative flex flex-col h-[500px] sm:h-[600px] lg:h-[700px] w-full xl:w-[600px] max-w-lg mx-auto overflow-hidden rounded-[2rem] border border-border/60 bg-card/50 shadow-2xl backdrop-blur-xl">
+    <div className="w-full max-w-4xl mx-auto py-10 relative z-10 perspective-1000">
       
-      {/* 🚀 SCANNER ANIMATION: Moving Laser Beam */}
-      <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden rounded-[2rem]">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/80 to-transparent shadow-[0_0_20px_2px_rgba(124,58,237,0.5)] animate-scan" />
-      </div>
+      {/* 🚀 Main Card Container */}
+      <div className="relative aspect-[4/3] md:aspect-[16/9] lg:aspect-auto lg:min-h-[550px] flex flex-col bg-white dark:bg-gray-950/50 rounded-[2rem] border border-primary/10 dark:border-primary/20 shadow-2xl overflow-hidden backdrop-blur-sm group">
+        
+        {/* 🕸️ Background Tech Grid (Subtle Animation) */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
-      {/* Loading Progress Bar (Top) */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-background/80 backdrop-blur-md pt-4 pb-2 border-b border-border/40">
-        <div className="px-4 flex gap-1.5">
-          {[1, 2, 3].map((_, index) => (
-            <div
-              key={index}
-              className="h-1.5 flex-1 rounded-full bg-primary/10 overflow-hidden"
-            >
-              <div
-                className={cn(
-                  "h-full bg-gradient-to-r from-primary/50 to-primary animate-pulse",
-                  index === 0 ? "w-full" : "w-0"
-                )}
-              />
-            </div>
-          ))}
+        {/* 🔦 THE SCANNER BEAM (Wow Factor) */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+             <motion.div 
+                initial={{ top: "-10%" }}
+                animate={{ top: "110%" }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute left-0 right-0 h-24 bg-gradient-to-b from-transparent via-primary/10 to-transparent w-full blur-xl"
+             />
+             <motion.div 
+                initial={{ top: "-10%" }}
+                animate={{ top: "110%" }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute left-0 right-0 h-[1px] bg-primary/40 shadow-[0_0_20px_2px_rgba(124,58,237,0.3)] w-full"
+             />
         </div>
-      </div>
 
-      {/* Loading Content */}
-      {/* 👇 FIX: Scrollbar Hiding Code Added Here */}
-      <div className="flex-1 overflow-y-auto pt-16 pb-24 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <div className="px-5 sm:px-8">
-          
-          {/* Loading Title (Sticky) */}
-          <div className="sticky top-0 z-10 mb-6 bg-background/95 pt-2 pb-4 backdrop-blur-md border-b border-border/40 flex justify-center">
-            <Skeleton className="h-8 w-3/4 rounded-lg bg-primary/10" />
-          </div>
+        {/* --- SKELETON CONTENT (Looking Faded) --- */}
+        <div className="flex-1 p-8 sm:p-12 space-y-8 relative opacity-30 select-none grayscale-[0.5] mix-blend-multiply dark:mix-blend-screen">
+             {/* Fake Heading */}
+             <div className="space-y-3">
+                 <div className="flex items-center gap-3">
+                     <div className="w-1.5 h-8 bg-gray-400 rounded-full" />
+                     <div className="h-8 w-3/4 bg-gray-300 rounded-lg" />
+                 </div>
+             </div>
+             {/* Fake Paragraphs */}
+             <div className="space-y-4">
+                 <div className="h-4 w-full bg-gray-300 rounded" />
+                 <div className="h-4 w-[92%] bg-gray-300 rounded" />
+                 <div className="h-4 w-[98%] bg-gray-300 rounded" />
+                 <div className="h-4 w-[85%] bg-gray-300 rounded" />
+             </div>
+             {/* Fake List */}
+             <div className="space-y-4 pt-6">
+                 {[1, 2, 3].map((i) => (
+                     <div key={i} className="flex items-start gap-3">
+                         <div className="mt-1.5 h-2 w-2 rounded-full bg-gray-400 shrink-0" />
+                         <div className="space-y-2 w-full">
+                             <div className="h-4 w-[90%] bg-gray-300 rounded" />
+                             <div className="h-4 w-[60%] bg-gray-300 rounded" />
+                         </div>
+                     </div>
+                 ))}
+             </div>
+        </div>
 
-          {/* Loading Points */}
-          <div className="space-y-4">
+        {/* 🔮 CENTER NEURAL ORB (The Brain) */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
             
-            {/* Mocking the "EmojiPoint" style */}
-            {[1, 2, 3].map((_, index) => (
-              <div
-                key={`point-${index}`}
-                className="relative rounded-xl border border-border/40 bg-white/50 p-5 shadow-sm"
-              >
-                <div className="flex items-start gap-4">
-                  {/* Icon Skeleton */}
-                  <Skeleton className="h-10 w-10 shrink-0 rounded-lg bg-primary/10" />
-                  
-                  {/* Text Lines */}
-                  <div className="flex-1 space-y-2 py-1">
-                    <Skeleton className="h-4 w-full bg-muted/60" />
-                    <Skeleton className="h-4 w-4/5 bg-muted/60" />
-                  </div>
+            {/* Glassmorphism Card */}
+            <div className="relative p-8 rounded-3xl bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center gap-6 max-w-xs w-full mx-4 ring-1 ring-black/5">
+                
+                {/* Animated Orb Container */}
+                <div className="relative w-20 h-20 flex items-center justify-center">
+                    {/* Outer Rotating Ring */}
+                    <div className="absolute inset-0 rounded-full border-t-2 border-r-2 border-primary/50 animate-spin [animation-duration:3s]" />
+                    
+                    {/* Reverse Rotating Ring */}
+                    <div className="absolute inset-2 rounded-full border-b-2 border-l-2 border-purple-500/50 animate-spin [animation-duration:2s] [animation-direction:reverse]" />
+                    
+                    {/* Glowing Core */}
+                    <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse" />
+                    
+                    {/* Central Icon (Animated Switch) */}
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={currentStep}
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.5, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <CurrentIcon className="w-8 h-8 text-primary fill-primary/20" />
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
-              </div>
-            ))}
 
-            {/* Mocking "RegularPoint" style */}
-            {[1, 2].map((_, index) => (
-              <div
-                key={`reg-${index}`}
-                className="rounded-xl border border-border/30 bg-white/40 p-4"
-              >
-                <div className="space-y-2">
-                   <Skeleton className="h-4 w-full bg-muted/50" />
-                   <Skeleton className="h-4 w-2/3 bg-muted/50" />
+                {/* Animated Text */}
+                <div className="flex flex-col items-center gap-2 text-center h-12">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                        AI Processing
+                    </h3>
+                    <AnimatePresence mode="wait">
+                        <motion.p 
+                            key={currentStep}
+                            initial={{ y: 5, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -5, opacity: 0 }}
+                            className="text-xs text-muted-foreground font-medium uppercase tracking-wider"
+                        >
+                            {steps[currentStep].text}
+                        </motion.p>
+                    </AnimatePresence>
                 </div>
-              </div>
-            ))}
-          </div>
+
+                {/* Progress Bar inside card */}
+                <div className="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div 
+                        className="h-full bg-gradient-to-r from-primary to-purple-500"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 10, ease: "linear", repeat: Infinity }}
+                    />
+                </div>
+
+            </div>
         </div>
+
       </div>
 
-      {/* Loading Navigation */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border z-20">
-        <div className="flex justify-between items-center max-w-2xl mx-auto">
-          {/* Previous Button Skeleton */}
-          <Skeleton className="rounded-full w-10 h-10 bg-primary/5" />
-
-          {/* Pagination Dots Skeleton */}
-          <div className="flex gap-1.5">
-            <Skeleton className="h-2 w-8 rounded-full bg-primary/20" /> {/* Active Pill */}
-            <Skeleton className="h-2 w-2 rounded-full bg-primary/10" />
-            <Skeleton className="h-2 w-2 rounded-full bg-primary/10" />
-          </div>
-          
-          {/* Next Button Skeleton */}
-          <Skeleton className="rounded-full w-10 h-10 bg-primary/20" />
-        </div>
-      </div>
-    </Card>
+    </div>
   );
 }

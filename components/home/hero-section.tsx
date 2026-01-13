@@ -65,7 +65,7 @@ export default function HeroSection() {
         </Button>
         
         <p className="mt-4 text-xs font-medium text-muted-foreground/60">
-            No credit card required • 100% Free for Students
+          No credit card required. Start summarizing in seconds.
         </p>
       </MotionDiv>
     </MotionSection>

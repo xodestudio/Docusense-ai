@@ -15,10 +15,12 @@ import {
   Search, 
   Sparkles, 
   Zap, 
-  Clock,
-  X
+  X,
+  Crown,
+  Lock
 } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface DashboardClientProps {
   initialSummaries: any[];
@@ -29,13 +31,17 @@ interface DashboardClientProps {
     totalWords: number;
     timeSaved: number;
   };
+  isPro: boolean;
+  hasActivePlan: boolean;
 }
 
 export default function DashboardClient({ 
   initialSummaries, 
   hasReachedLimit, 
   uploadLimit,
-  stats 
+  stats,
+  isPro,
+  hasActivePlan
 }: DashboardClientProps) {
   
   // Search State
@@ -63,9 +69,20 @@ export default function DashboardClient({
             variants={itemVariants}
             initial="hidden"
             whileInView="visible"
-            className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+            className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl flex items-center gap-3"
           >
             Dashboard
+            {/* Badges */}
+            {isPro && (
+               <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-purple-600 px-3 py-1 text-xs font-bold text-white shadow-md">
+                 <Crown className="w-3 h-3 fill-white" /> PRO
+               </span>
+            )}
+            {!hasActivePlan && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-600 border border-red-200">
+                    Expired
+                </span>
+            )}
           </MotionH1>
           <MotionP
             variants={itemVariants}
@@ -77,16 +94,33 @@ export default function DashboardClient({
           </MotionP>
         </div>
 
-        {!hasReachedLimit && (
-          <MotionDiv variants={itemVariants} initial="hidden" animate="visible">
-            <Button asChild size="lg" className="rounded-full gap-2 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40">
-              <Link href="/upload">
-                <Plus className="w-5 h-5" />
-                Create New Summary
-              </Link>
+        {/* Action Button Logic */}
+        <MotionDiv variants={itemVariants} initial="hidden" animate="visible">
+          {hasActivePlan ? (
+            // CASE A: Active Plan
+            !hasReachedLimit ? (
+                // Sub-case: Under Limit -> Show Upload Button
+                <Button asChild size="lg" className="rounded-full gap-2 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40">
+                  <Link href="/upload">
+                    <Plus className="w-5 h-5" />
+                    Create New Summary
+                  </Link>
+                </Button>
+            ) : (
+                // Sub-case: Limit Reached -> Show Disabled Button
+                <Button disabled variant="outline" className="opacity-50 cursor-not-allowed gap-2">
+                   Limit Reached
+                </Button>
+            )
+          ) : (
+            // CASE B: Expired Plan -> Show Renew Button
+            <Button asChild size="lg" variant="destructive" className="rounded-full gap-2 shadow-lg hover:bg-red-600">
+                <Link href="/dashboard/upgrade">
+                  <Lock className="w-4 h-4" /> Renew Plan to Upload
+                </Link>
             </Button>
-          </MotionDiv>
-        )}
+          )}
+        </MotionDiv>
       </div>
 
       {/* 2. 📊 Real Analytics Cards */}
@@ -133,7 +167,7 @@ export default function DashboardClient({
               </button>
             )}
           </div>
-          {/* Dummy Filters for Visuals */}
+          {/* Visual Filter Button */}
           <Button variant="outline" className="gap-2 border-border/60 bg-background/60 backdrop-blur-sm text-muted-foreground hover:text-foreground">
             <Filter className="h-4 w-4" />
             Filter
@@ -141,8 +175,8 @@ export default function DashboardClient({
         </div>
       )}
 
-      {/* Limit Alert */}
-      {hasReachedLimit && (
+      {/* Limit Alert Banner */}
+      {hasReachedLimit && hasActivePlan && (
         <MotionDiv
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -153,10 +187,12 @@ export default function DashboardClient({
                 <Sparkles className="h-4 w-4" />
              </div>
              <p className="text-sm font-medium">
-                Upload limit reached. 
-                <Link href="/pricing" className="ml-1 underline underline-offset-4 hover:text-amber-800 dark:hover:text-amber-300 font-bold">
-                  Upgrade Plan
-                </Link> 
+                Upload limit reached ({uploadLimit}/{uploadLimit}). 
+                {!isPro && (
+                    <Link href="/dashboard/upgrade" className="ml-1 underline underline-offset-4 hover:text-amber-800 dark:hover:text-amber-300 font-bold">
+                    Upgrade to Pro for unlimited uploads.
+                    </Link> 
+                )}
              </p>
           </div>
         </MotionDiv>
@@ -183,7 +219,7 @@ export default function DashboardClient({
   );
 }
 
-// Stats UI Helper
+// Stats UI Helper Component
 function StatsCard({ label, value, icon, delay }: { label: string; value: string; icon: React.ReactNode, delay: number }) {
   return (
     <MotionDiv

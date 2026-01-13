@@ -1,20 +1,22 @@
 export const pricingPlans = [
   {
     name: "Basic",
-    price: 49,
-    description: "Perfect for occasional use",
+    price: 5,
+    description: "Perfect for essential use",
     items: [
       "5 PDF summaries per month",
       "Standard processing speed",
       "Email support",
     ],
     id: "basic",
-    paymentLink: "https://buy.stripe.com/test_3cscMQcF8548gz6cMM",
-    priceId: "price_1RA9yVCTlpmJdURCo5eDA5T5",
+    paymentLink:
+      "Stripe Payment Link to be added soon, Pending activation as Stripe is not yet available for live accounts in Pakistan.",
+    priceId:
+      "Stripe Price ID to be added soon, pending activation as Stripe is not yet available for live accounts in Pakistan.",
   },
   {
     name: "Pro",
-    price: 129,
+    price: 12.99,
     description: "For professionals and teams",
     items: [
       "Unlimited PDF summaries",
@@ -23,10 +25,19 @@ export const pricingPlans = [
       "Markdown Export",
     ],
     id: "pro",
-    paymentLink: "https://buy.stripe.com/test_28o7sw7kO7cg6Yw7st",
-    priceId: "price_1RA9yVCTlpmJdURCk8Oi1pwO",
+    paymentLink:
+      "Stripe Payment Link to be added soon, Pending activation as Stripe is not yet available for live accounts in Pakistan.",
+    priceId:
+      "Stripe Price ID to be added soon, pending activation as Stripe is not yet available for live accounts in Pakistan.",
   },
 ];
+
+// export const PLAN_LIMITS = {
+//   basic: 10 * 1024 * 1024,
+//   pro: 25 * 1024 * 1024,
+// };
+
+// export const MAX_FREE_LIMIT = 0;
 
 export const itemVariants = {
   hidden: { opacity: 0, y: 20 },

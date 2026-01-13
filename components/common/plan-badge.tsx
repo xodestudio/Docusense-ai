@@ -1,69 +1,75 @@
 import { getPriceIdForActiveUser } from "@/lib/user";
-import { pricingPlans } from "@/utils/constants";
 import { currentUser } from "@clerk/nextjs/server";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Crown, Sparkles } from "lucide-react";
-import { Button } from "../ui/button";
+import { Crown, Sparkles, Zap } from "lucide-react"; // Zap icon added for Free plan
 import Link from "next/link";
+
+// 👇 Aapki real Price IDs (from payments.json)
+const PRO_PRICE_ID = "price_1RA9yVCTlpmJdURCk8Oi1pwO";
+const BASIC_PRICE_ID = "price_1RA9yVCTlpmJdURCo5eDA5T5";
 
 export default async function PlanBadge() {
   const user = await currentUser();
 
+  // 1. User hi nahi hai to badge kyu dikhana?
   if (!user?.id) return null;
 
   const email = user.emailAddresses?.[0]?.emailAddress;
+  if (!email) return null;
 
-  let priceId: string | null = null;
-  if (email) {
-     priceId = await getPriceIdForActiveUser(email);
-  }
+  // 2. Database se Price ID nikalo
+  const priceId = await getPriceIdForActiveUser(email);
 
-  // 👇 CASE 1: No Plan (Show Upgrade Button)
+  // 🛑 Case A: Koi Plan Nahi (Free User) -> Show "Modern Upgrade" Button
   if (!priceId) {
     return (
-        <Link href="/#pricing">
-            <Button 
-                size="sm" 
-                className="ml-2 h-8 font-semibold text-xs bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white border-0 hover:opacity-90 hover:shadow-md transition-all duration-300 shadow-purple-500/20"
-            >
-                <Crown className="w-3.5 h-3.5 mr-1.5 fill-white/20" /> 
-                Buy a plan
-            </Button>
+        <Link href="/#pricing" className="ml-2 group relative inline-flex items-center justify-center rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+            {/* Animated Gradient Border */}
+            <span className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-70 blur-sm transition-all duration-500 group-hover:opacity-100 group-hover:blur-md" />
+            
+            {/* Button Content */}
+            <span className="relative inline-flex h-7 cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-xs font-medium text-white backdrop-blur-3xl transition-colors hover:bg-slate-900">
+                <Crown className="w-3.5 h-3.5 mr-1.5 fill-yellow-500 text-yellow-500" />
+                <span className="bg-gradient-to-r from-indigo-200 to-purple-200 bg-clip-text text-transparent font-bold">
+                    Upgrade to Pro
+                </span>
+            </span>
         </Link>
     )
   }
 
-  // 👇 FIX: ID Mapping Logic (As requested)
-  if (priceId === 'price_1RA9yVCTlpmJdURCk8Oi1pwO_BASIC') {
-      priceId = 'price_1RA9yVCTlpmJdURCo5eDA5T5'; 
-  }
+  // 🔍 Case B: Plan Identify Karo
+  const isPro = priceId === PRO_PRICE_ID;
+  const planName = isPro ? "PRO" : "BASIC"; 
 
-  const plan = pricingPlans.find((plan) => plan.priceId === priceId);
-  const planName = plan ? plan.name : "Basic"; 
-  const isPro = plan?.id === "pro";
-
-  // 👇 CASE 2: Active Plan Badge
+  // ✅ Case C: Premium Badge Render Karo
   return (
-    <Badge
-      variant="outline"
-      className={cn(
-        "ml-2 hidden lg:flex items-center gap-1.5 px-3 py-1 transition-all duration-300 backdrop-blur-md",
-        // Default (Basic): Clean Greyish Blue
-        "bg-secondary/50 border-border text-muted-foreground",
-        // Pro: Premium Primary Color with Glow
-        isPro && "bg-primary/10 border-primary/20 text-primary shadow-[0_0_10px_-4px_rgba(124,58,237,0.3)]"
-      )}
-    >
+    <div className={cn(
+        "ml-2 hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all duration-300",
+        // ✨ PRO STYLING (Premium Glassy Look)
+        isPro 
+          ? "bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-purple-500/20 text-purple-600 dark:text-purple-300 shadow-[0_0_20px_-5px_rgba(168,85,247,0.4)]" 
+          
+        // 🛡️ BASIC STYLING (Clean & Minimal)
+          : "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+    )}>
+      
       {isPro ? (
-          <Sparkles className="w-3.5 h-3.5 text-primary fill-primary/20" />
+          // Pro Icon with Gradient Fill
+          <div className="bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full p-0.5">
+             <Sparkles className="w-2.5 h-2.5 text-white fill-white" />
+          </div>
       ) : (
-          <Crown className="w-3.5 h-3.5 text-muted-foreground/70" />
+          // Basic Icon
+          <Zap className="w-3.5 h-3.5 fill-gray-400 text-gray-500" />
       )}
       
-      <span className="font-medium tracking-wide text-[11px] uppercase">
+      <span className={cn(
+          "font-bold tracking-wider text-[10px]",
+          isPro && "bg-gradient-to-r from-indigo-600 to-pink-600 dark:from-indigo-400 dark:to-pink-400 bg-clip-text text-transparent"
+      )}>
         {planName}
       </span>
-    </Badge>
+    </div>
   );
 }

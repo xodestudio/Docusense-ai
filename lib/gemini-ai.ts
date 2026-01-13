@@ -8,20 +8,21 @@ export const generateSummaryFromGemini = async (pdfText: string) => {
     throw new Error("Missing GEMINI_API_KEY in .env.local");
   }
 
-  // 2. Initialize New SDK
+  // 2. Initialize SDK
   const ai = new GoogleGenAI({ apiKey: apiKey });
 
   try {
-    // 🔴 SAFETY CHECK: Text Truncation (Timeout se bachne ke liye)
-    const truncatedText = pdfText.slice(0, 100000);
-    const cleanedPdfText = truncatedText.replace(/\s{2,}/g, " ").trim();
+    // 🔴 SAFETY CHECK: Truncate to avoid token limits if file is massive
+    // Gemini 1.5 Flash ka context window bada hai (1M tokens), to hum zyada text bhej skte hain
+    const truncatedText = pdfText.slice(0, 300000);
 
-    const prompt = `${SUMMARY_SYSTEM_PROMPT}\n\nTransform this document into an engaging, easy-to-read summary with contextually relevant emojis and proper markdown formatting:\n\n${cleanedPdfText}`;
+    // Prompt Construction
+    const prompt = `${SUMMARY_SYSTEM_PROMPT}\n\nHere is the raw document text to process:\n\n${truncatedText}`;
 
-    console.log("🤖 Sending request to Gemini (New SDK)...");
+    console.log("🤖 Sending request to Gemini...");
 
-    // 3. Generate Content (New Syntax)
-    // Note: Maine model 'gemini-1.5-flash' rakha hai kyunke '2.5' abhi public nahi hai.
+    // 3. Generate Content
+    // Model: 'gemini-2.5-flash' is recommended for high speed & large context.
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: [
@@ -31,8 +32,8 @@ export const generateSummaryFromGemini = async (pdfText: string) => {
         },
       ],
       config: {
-        temperature: 0.7,
-        maxOutputTokens: 2000,
+        temperature: 0.6, // Thora creative taake content expand kr sake
+        maxOutputTokens: 8192, // Output lamba allow kro
       },
     });
 

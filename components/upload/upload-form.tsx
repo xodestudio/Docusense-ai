@@ -4,37 +4,32 @@ import { z } from "zod";
 import UploadFormInput from "./upload-form-input";
 import { useUploadThing } from "@/utils/uploadthing";
 import { toast } from "sonner";
-import {
-  generatePdfSummary,
-  storePdfSummaryAction,
-} from "@/actions/upload-actions";
+import { generatePdfSummary, storePdfSummaryAction } from "@/actions/upload-actions";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import LoadingSkeleton from "./loading-skeleton";
 
-// Schema definition
-const schema = z.object({
-  file: z
-    .instanceof(File, { message: "Invalid file" })
-    .refine(
-      (file) => file.size <= 20 * 1024 * 1024,
-      "File size must be less than 20MB"
-    )
-    .refine(
-      (file) => file.type.startsWith("application/pdf"),
-      "File must be a PDF"
-    ),
-});
+const LIMITS = {
+  FREE: 10 * 1024 * 1024, // 10MB
+  PRO: 25 * 1024 * 1024,  // 25MB
+};
 
-export default function UploadForm() {
+interface UploadFormProps {
+  isPro: boolean;
+}
+
+export default function UploadForm({ isPro }: UploadFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const { startUpload } = useUploadThing("pdfUploader", {
-    onClientUploadComplete: () => {
-      console.log("uploaded successfully!");
-    },
+  const endpoint = isPro ? "proUploader" : "freeUploader";
+  const maxFileSize = isPro ? LIMITS.PRO : LIMITS.FREE;
+  
+  // Dynamic Limit Text Logic
+  const limitText = isPro ? "25MB" : "10MB";
+
+  const { startUpload } = useUploadThing(endpoint, {
     onUploadError: (err) => {
       console.log("error occurred while uploading", err);
       toast.error("Error occurred while uploading");
@@ -49,7 +44,19 @@ export default function UploadForm() {
       const formData = new FormData(e.currentTarget);
       const file = formData.get("file") as File;
 
-      // 1. Validate File
+      const schema = z.object({
+        file: z
+          .instanceof(File, { message: "Invalid file" })
+          .refine(
+            (file) => file.size <= maxFileSize,
+            `File size must be less than ${limitText}. ${!isPro ? "Upgrade to Pro for larger files." : ""}`
+          )
+          .refine(
+            (file) => file.type.startsWith("application/pdf"),
+            "File must be a PDF"
+          ),
+      });
+
       const validatedFields = schema.safeParse({ file });
       
       if (!validatedFields.success) {
@@ -60,12 +67,8 @@ export default function UploadForm() {
       }
 
       setIsLoading(true);
+      toast.info("Uploading PDF...", { description: "Please wait while we secure your file." });
 
-      toast.info("Uploading PDF...", {
-        description: "Please wait while we secure your file.",
-      });
-
-      // 2. Upload to UploadThing
       const uploadResponse = await startUpload([file]);
       
       if (!uploadResponse) {
@@ -75,12 +78,8 @@ export default function UploadForm() {
       }
 
       const uploadFileUrl = uploadResponse[0].url;
+      toast.info("Processing PDF...", { description: "Our AI is analyzing document structure..." });
 
-      toast.info("Processing PDF...", {
-        description: "Our AI is analyzing document structure...",
-      });
-
-      // 3. Generate Summary (Server Action 1)
       const generateResult = await generatePdfSummary({
         fileUrl: uploadFileUrl,
         fileName: file.name,
@@ -92,10 +91,7 @@ export default function UploadForm() {
         return;
       }
 
-      // 4. Save Summary (Server Action 2)
-      toast.info("Finalizing...", {
-        description: "Saving your summary to the dashboard.",
-      });
+      toast.info("Finalizing...", { description: "Saving your summary to the dashboard." });
 
       const storeResult = await storePdfSummaryAction({
         summary: generateResult.data.summary,
@@ -105,10 +101,7 @@ export default function UploadForm() {
       });
 
       if (storeResult.success && storeResult.data) {
-        toast.success("Success!", {
-          description: "Summary generated successfully.",
-        });
-
+        toast.success("Success!", { description: "Summary generated successfully." });
         formRef.current?.reset();
         router.push(`/summaries/${storeResult.data.id}`);
       } else {
@@ -127,10 +120,9 @@ export default function UploadForm() {
   return (
     <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
       
-      {/* 1. Divider / Label */}
+      {/* Label Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          {/* Changed fixed gray to theme border */}
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
@@ -140,23 +132,26 @@ export default function UploadForm() {
         </div>
       </div>
 
-      {/* 2. Content Area */}
+      {/* Content */}
       {isLoading ? (
         <div className="animate-in fade-in zoom-in duration-500">
-           {/* Loading Skeleton */}
+           {/* ✅ Clean Skeleton without extra text below */}
            <LoadingSkeleton />
-           
-           {/* Cancel Hint */}
-           <p className="text-center text-xs text-muted-foreground mt-4 animate-pulse">
-              This may take up to 30 seconds for large files. Do not close the tab.
-           </p>
         </div>
       ) : (
-        <UploadFormInput
-          isLoading={isLoading}
-          ref={formRef}
-          onSubmit={handleSubmit}
-        />
+        <div className="space-y-3">
+            {/* Input Component */}
+            <UploadFormInput
+              isLoading={isLoading}
+              ref={formRef}
+              onSubmit={handleSubmit}
+            />
+            
+            {/* Single Dynamic Helper Text */}
+            <p className="text-center text-xs text-muted-foreground">
+                Supported files: PDF documents up to <span className="font-bold text-foreground">{limitText}</span>.
+            </p>
+        </div>
       )}
     </div>
   );
