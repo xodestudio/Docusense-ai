@@ -2,33 +2,37 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Lock, Tag } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Calendar, Check, CreditCard, Lock, ShieldCheck, Sparkles, User, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { changeSubscription } from "@/actions/upgrade-action";
-import { useUser } from "@clerk/nextjs"; // 👈 1. Import added
+import { useUser } from "@clerk/nextjs";
+import BgGradient from "@/components/common/bg-gradient";
+import { MotionDiv } from "@/components/common/motion-wrapper";
+import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function UpgradePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
   
-  // 👈 2. Get User Email dynamically
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false); // 👈 New Success State
+  
   const { user } = useUser();
   const userEmail = user?.primaryEmailAddress?.emailAddress || "";
 
   // --- PLANS SETUP ---
   const planParam = searchParams.get("plan"); 
   const isBasic = planParam === "basic";
-  
-  const planName = isBasic ? "Basic Subscription" : "Pro Subscription";
+  const planName = isBasic ? "Basic Plan" : "Pro Plan";
   const planPrice = isBasic ? "$5.00" : "$12.99"; 
-  const planDesc = isBasic ? "5 PDF summaries & Standard speed" : "Unlimited summaries, Notion export, & priority support";
+  const planFeatures = isBasic 
+    ? ["5 PDF Summaries/mo", "Standard Speed", "Email Support"] 
+    : ["Unlimited Summaries", "Priority AI Processing", "Notion Export", "24/7 Priority Support"];
   
-  const badgeColor = isBasic ? "bg-gray-700" : "bg-[#635bff]";
-  const buttonColor = isBasic ? "bg-gray-800 hover:bg-gray-900" : "bg-[#0074d4] hover:bg-[#006bbd]";
-
   // --- FORM STATES ---
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -37,10 +41,8 @@ export default function UpgradePage() {
   const [country, setCountry] = useState("Pakistan");
   const [address, setAddress] = useState("");
   const [saveInfo, setSaveInfo] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
-  const [showPromo, setShowPromo] = useState(false);
 
-  // --- VALIDATION ---
+  // --- VALIDATION & ERROR TOASTS ---
   const isValidLuhn = (num: string) => {
     let arr = (num + "").split("").reverse().map((x) => parseInt(x));
     let lastDigit = arr.splice(0, 1)[0];
@@ -49,32 +51,41 @@ export default function UpgradePage() {
     return sum % 10 === 0;
   };
 
+  const showError = (title: string, message: string) => {
+      toast.error(
+        <div className="flex flex-col gap-1">
+            <span className="font-bold text-base">{title}</span>
+            <span className="text-sm font-normal opacity-90">{message}</span>
+        </div>,
+        {
+            className: "bg-red-50 border-red-200 text-red-800",
+            duration: 4000,
+            icon: <AlertCircle className="w-5 h-5 text-red-600" />
+        }
+      );
+  };
+
   const validateForm = () => {
     const cleanNum = cardNumber.replace(/\s/g, "");
-    
     if (cleanNum.length < 15 || !isValidLuhn(cleanNum)) {
-      toast.error("Invalid Card Number.");
+      showError("Invalid Card", "Please enter a valid card number.");
       return false;
     }
-
     const [expMonth, expYear] = expiry.replace(/\s/g, "").split("/").map(Number);
     if (!expMonth || !expYear || expMonth > 12 || expMonth < 1) {
-        toast.error("Invalid Expiry Date.");
+        showError("Invalid Date", "Expiration month must be between 01 and 12.");
         return false;
     }
-    
-    // Future Date Check
     const now = new Date();
     const currentYear = parseInt(now.getFullYear().toString().slice(-2));
     const currentMonth = now.getMonth() + 1;
     if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
-        toast.error("Card has expired.");
+        showError("Card Expired", "Your card has expired. Please use a valid card.");
         return false;
     }
-
-    if (cvc.length < 3) { toast.error("Invalid CVC."); return false; }
-    if (!nameOnCard.trim()) { toast.error("Name is required."); return false; }
-    if (!address.trim()) { toast.error("Address is required."); return false; }
+    if (cvc.length < 3) { showError("Invalid CVC", "Please enter the 3-digit security code."); return false; }
+    if (!nameOnCard.trim()) { showError("Missing Name", "Cardholder name is required."); return false; }
+    if (!address.trim()) { showError("Missing Address", "Billing address is required."); return false; }
 
     return true;
   };
@@ -88,8 +99,6 @@ export default function UpgradePage() {
     
     try {
       const planType = isBasic ? "basic" : "pro";
-      
-      // Sending ALL Data to Backend
       const result = await changeSubscription({
           plan: planType,
           nameOnCard,
@@ -99,19 +108,25 @@ export default function UpgradePage() {
       });
 
       if (result.success) {
-        toast.success(`Payment Approved! Welcome to ${planName}. 🎉`);
-        window.location.href = "/dashboard"; // Hard Refresh
+        // 👇 TRIGGER SUCCESS ANIMATION
+        setSuccess(true);
+        
+        // Wait 3 seconds for animation, then redirect
+        setTimeout(() => {
+             window.location.href = "/dashboard"; 
+        }, 3500);
+
       } else {
-        toast.error("Payment failed. Please try again.");
+        showError("Transaction Failed", "The bank declined the transaction. Please try another card.");
       }
     } catch (error) {
-      toast.error("Something went wrong.");
+      showError("System Error", "Something went wrong. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  // --- UI HELPERS ---
+  // --- FORMATTERS ---
   const formatCard = (e: any) => {
     let val = e.target.value.replace(/\D/g, "").substring(0, 16);
     val = val.replace(/(\d{4})(?=\d)/g, "$1 ");
@@ -124,121 +139,227 @@ export default function UpgradePage() {
   };
 
   return (
-    <div className="grid lg:grid-cols-2 font-[-apple-system,BlinkMacSystemFont,Segoe_UI,Roboto,Helvetica,Arial,sans-serif] text-[#30313d] bg-white lg:bg-transparent min-h-screen">
+    <div className="relative min-h-screen bg-background overflow-hidden text-foreground selection:bg-primary/20">
       
-      {/* LEFT: SUMMARY (Gray) */}
-      <div className="bg-[#f7f8f9] px-6 py-6 lg:px-12 lg:pt-8 lg:pb-12 border-r border-gray-200 flex flex-col order-2 lg:order-1 h-full">
-        
-        <div className="flex items-center gap-3 mb-4">
-            <div onClick={() => router.back()} className="cursor-pointer text-gray-500 hover:text-gray-900 transition-colors">
-                <ArrowLeft className="w-4 h-4" />
-            </div>
-            <span className="font-semibold text-gray-500 text-[14px]">Summarie.ai</span>
-            <span className="bg-[#ffc010] text-[#634316] text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">TEST MODE</span>
-        </div>
+      {/* Background Ambience */}
+      <BgGradient className="top-[-20%] left-[-10%] opacity-15 blur-[120px]" />
+      <BgGradient className="bottom-[-20%] right-[-10%] opacity-15 blur-[120px] from-blue-500 to-cyan-500" />
 
-        <div className="mb-8">
-            <p className="text-gray-500 font-medium mb-1 text-[14px]">Pay Summarie.ai</p>
-            <h1 className="text-4xl font-bold text-[#1a1f36] tracking-tight">{planPrice}</h1>
-        </div>
+      {/* 🚀 SUCCESS OVERLAY (Absolute Full Screen) */}
+      <AnimatePresence>
+        {success && (
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-xl px-4"
+            >
+                {/* Checkmark Animation */}
+                <motion.div 
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                    className="relative"
+                >
+                    <div className="absolute inset-0 bg-green-500 blur-[60px] opacity-20 rounded-full" />
+                    <div className="h-32 w-32 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-2xl shadow-green-500/30">
+                        <Check className="h-16 w-16 text-white stroke-[4px]" />
+                    </div>
+                </motion.div>
 
-        <div className="flex items-start gap-4 mb-6">
-            <div className="h-16 w-16 bg-white border border-gray-200 rounded-md flex items-center justify-center shrink-0 relative overflow-hidden">
-                <div className={`${badgeColor} h-8 w-12 rounded flex items-center justify-center text-white text-[10px] font-bold shadow-sm z-10`}>
-                    {isBasic ? "BASIC" : "PRO"}
-                </div>
-            </div>
-            <div className="flex-1">
-                <div className="flex justify-between items-start">
-                    <h3 className="font-medium text-[#1a1f36] text-[14px]">{planName}</h3>
-                    <div className="font-medium text-[#1a1f36] text-[14px]">{planPrice}</div>
-                </div>
-                <p className="text-[13px] text-[#697386] mt-1 leading-normal">{planDesc}</p>
-            </div>
-        </div>
+                {/* Text Animation */}
+                <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-8 text-center space-y-2"
+                >
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">Payment Successful!</h1>
+                    <p className="text-lg text-muted-foreground">You are now a <span className="text-primary font-bold">{planName}</span> member.</p>
+                </motion.div>
 
-        {/* Promo Code Toggle */}
-        <div className="mb-6">
-            {!showPromo ? (
-                 <button onClick={() => setShowPromo(true)} className="!bg-transparent !border-none !p-0 text-[#0074d4] font-medium text-[14px] flex items-center gap-2 hover:text-[#005ba8] cursor-pointer">
-                    <Tag className="w-4 h-4" /> Add promotion code
-                 </button>
-            ) : (
-                <div className="flex gap-3">
-                    <Input placeholder="Promo Code" className="bg-white border-gray-300 h-9 text-sm" value={promoCode} onChange={(e) => setPromoCode(e.target.value)} />
-                    <Button variant="outline" className="h-9 border-gray-300" onClick={() => toast.error("Invalid Code")}>Apply</Button>
-                </div>
-            )}
-        </div>
-
-        <div className="border-t border-gray-200 pt-5 space-y-3 flex-1">
-            <div className="flex justify-between text-[#1a1f36] font-semibold text-[15px] mt-4 pt-4 border-t border-gray-200">
-                <span>Total due</span>
-                <span>{planPrice}</span>
-            </div>
-        </div>
-      </div>
-
-      {/* RIGHT: FORM (White) */}
-      <div className="bg-white px-6 py-6 lg:px-12 lg:pt-8 flex flex-col order-1 lg:order-2 lg:min-h-[calc(100vh-80px)]">
-        <div className="max-w-[480px] w-full mx-auto lg:mt-0">
-            <h2 className="text-[20px] font-bold text-[#1a1f36] mb-6">Pay with card</h2>
-
-            <form onSubmit={handlePayment} className="space-y-5">
-                <div className="space-y-1.5">
-                    <label className="text-[13px] font-medium text-[#30313d]">Email</label>
-                    {/* 👇 3. Updated Input: Use userEmail variable */}
-                    <Input type="email" value={userEmail} readOnly className="h-[44px] bg-gray-50 text-gray-500" />
-                </div>
-
-                <div className="space-y-1.5">
-                    <label className="text-[13px] font-medium text-[#30313d]">Card information</label>
-                    <div className="border border-gray-300 rounded-[5px] shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-[#0074d4] transition-all">
-                        <Input 
-                            placeholder="1234 1234 1234 1234" 
-                            className="border-none rounded-none h-[44px] focus-visible:ring-0 px-3"
-                            value={cardNumber} onChange={formatCard} maxLength={19} required
+                {/* Redirecting Progress Bar */}
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                    className="mt-12 w-full max-w-xs"
+                >
+                    <div className="flex justify-between text-xs text-muted-foreground mb-2 font-medium">
+                        <span>Redirecting to Dashboard...</span>
+                        <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /></span>
+                    </div>
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                        <motion.div 
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 2.5, ease: "easeInOut", delay: 0.8 }}
+                            className="h-full bg-primary rounded-full"
                         />
-                        <div className="flex divide-x divide-gray-200 border-t border-gray-200">
-                            <Input placeholder="MM / YY" className="border-none rounded-none h-[44px] focus-visible:ring-0 w-1/2" value={expiry} onChange={formatExpiry} maxLength={7} required />
-                            <Input placeholder="CVC" className="border-none rounded-none h-[44px] focus-visible:ring-0 w-1/2" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").substring(0, 3))} maxLength={3} required />
+                    </div>
+                </motion.div>
+            </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10 max-w-6xl">
+        {/* Top Nav */}
+        <div className="mb-10 flex items-center justify-between">
+            <Button variant="ghost" onClick={() => router.back()} disabled={success} className="group gap-2 text-muted-foreground hover:text-foreground pl-0 hover:bg-transparent">
+                <div className="p-1 rounded-full bg-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                    <ArrowLeft className="w-4 h-4" /> 
+                </div>
+                <span className="font-medium">Back to Plans</span>
+            </Button>
+            
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-sm">
+                <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-wider">Test Mode</span>
+            </div>
+        </div>
+
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+          
+          {/* LEFT: SUMMARY */}
+          <MotionDiv 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            className="lg:col-span-5 order-2 lg:order-1 lg:sticky lg:top-8"
+          >
+             <div className="rounded-[2rem] border border-white/20 bg-white/40 dark:bg-black/20 backdrop-blur-xl p-8 shadow-2xl overflow-hidden relative">
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 blur-[50px] rounded-full pointer-events-none" />
+                <div className="space-y-8 relative z-10">
+                    <div>
+                        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">You're upgrading to</h2>
+                        <div className="flex items-baseline gap-2">
+                            <h1 className="text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">{planPrice}</h1>
+                            <span className="text-lg text-muted-foreground">/ month</span>
                         </div>
                     </div>
-                </div>
 
-                <div className="space-y-1.5">
-                    <label className="text-[13px] font-medium text-[#30313d]">Name on card</label>
-                    <Input placeholder="Card Holder Name" className="h-[44px] border-gray-300 shadow-sm focus:border-[#0074d4] focus:ring-1 focus:ring-[#0074d4]" value={nameOnCard} onChange={(e) => setNameOnCard(e.target.value)} required />
-                </div>
+                    <div className={cn(
+                        "relative p-5 rounded-2xl border transition-all duration-300",
+                        isBasic ? "bg-muted/40 border-border" : "bg-gradient-to-br from-primary/10 to-purple-600/5 border-primary/20 shadow-lg shadow-primary/5"
+                    )}>
+                        <div className="flex items-center gap-4">
+                            <div className={cn(
+                                "h-12 w-12 rounded-xl flex items-center justify-center shrink-0 text-white shadow-inner",
+                                isBasic ? "bg-gradient-to-br from-gray-400 to-gray-600" : "bg-gradient-to-br from-primary to-purple-700"
+                            )}>
+                                {isBasic ? <ShieldCheck className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg leading-tight">{planName}</h3>
+                                <p className="text-xs text-muted-foreground mt-0.5">Cancel anytime</p>
+                            </div>
+                        </div>
+                    </div>
 
-                <div className="space-y-1.5">
-                    <label className="text-[13px] font-medium text-[#30313d]">Billing address</label>
-                    <div className="relative">
-                        <select className="flex h-[44px] w-full items-center justify-between rounded-t-[5px] border border-gray-300 bg-gray-50 px-3 py-2 text-[15px]" value={country} onChange={(e) => setCountry(e.target.value)}>
-                            <option value="Pakistan">Pakistan</option>
-                            <option value="United States">United States</option>
-                            <option value="United Kingdom">United Kingdom</option>
-                        </select>
-                        <Input placeholder="Address" className="h-[44px] rounded-b-[5px] rounded-t-none border-gray-300 border-t-0 shadow-sm focus:border-[#0074d4] focus:ring-1 focus:ring-[#0074d4]" value={address} onChange={(e) => setAddress(e.target.value)} required />
+                    <div className="space-y-4">
+                        <p className="text-sm font-medium text-foreground">What's included:</p>
+                        <ul className="space-y-3">
+                            {planFeatures.map((feat, i) => (
+                                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground/80">
+                                    <div className="mt-0.5 p-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400">
+                                        <Check className="w-3 h-3" />
+                                    </div>
+                                    {feat}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="border-t border-border/50 pt-6 flex justify-between items-center">
+                        <span className="text-sm font-medium text-muted-foreground">Total due today</span>
+                        <span className="font-bold text-xl">{planPrice}</span>
                     </div>
                 </div>
+             </div>
+          </MotionDiv>
 
-                <div className="flex items-start gap-3 pt-2">
-                    <input type="checkbox" id="save-info" className="mt-1 h-4 w-4 rounded text-[#0074d4]" checked={saveInfo} onChange={(e) => setSaveInfo(e.target.checked)} />
-                    <label htmlFor="save-info" className="text-[13px] text-gray-500 leading-snug cursor-pointer select-none">
-                        Save my info for secure 1-click checkout <br/>
-                        <span className="text-gray-400 text-xs">Pay faster on Summarie.ai and thousands of sites.</span>
-                    </label>
+          {/* RIGHT: PAYMENT FORM */}
+          <MotionDiv 
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-7 order-1 lg:order-2"
+          >
+            <div className="bg-background rounded-[2rem] border border-border/50 p-6 lg:p-10 shadow-sm relative overflow-hidden">
+                <div className="mb-8">
+                    <h2 className="text-2xl font-bold tracking-tight mb-2">Payment Details</h2>
+                    <p className="text-muted-foreground">Enter your credentials to process the secure transaction.</p>
                 </div>
 
-                <Button type="submit" className={`w-full h-[44px] text-white font-semibold rounded-[5px] shadow-sm mt-4 text-[15px] ${buttonColor}`} disabled={loading}>
-                    {loading ? "Processing..." : `Pay ${planPrice}`}
-                </Button>
+                <form onSubmit={handlePayment} className="space-y-6">
+                    <div className="space-y-2">
+                        <Label>Email Address</Label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/50" />
+                            <Input value={userEmail} readOnly className="pl-10 bg-muted/30 border-border/50 text-muted-foreground cursor-not-allowed" />
+                        </div>
+                    </div>
 
-                <div className="flex items-center justify-center gap-2 text-gray-400 text-xs mt-4">
-                    <Lock className="w-3 h-3" /> Payments are secure and encrypted
-                </div>
-            </form>
+                    <div className="space-y-2">
+                        <Label>Name on Card</Label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/70" />
+                            <Input placeholder="e.g. Sarah Connor" value={nameOnCard} onChange={(e) => setNameOnCard(e.target.value)} className="pl-10 bg-background focus:ring-primary/20 transition-all" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <Label>Card Information</Label>
+                            <div className="flex gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
+                                <div className="h-4 w-6 bg-blue-600 rounded-[2px]" title="Visa"></div>
+                                <div className="h-4 w-6 bg-red-500 rounded-[2px]" title="Mastercard"></div>
+                            </div>
+                        </div>
+                        <div className="relative">
+                            <CreditCard className="absolute left-3 top-3 h-4 w-4 text-primary" />
+                            <Input placeholder="0000 0000 0000 0000" value={cardNumber} onChange={formatCard} maxLength={19} className="pl-10 font-mono tracking-wide bg-background focus:ring-primary/20 transition-all" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="relative">
+                                <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/70" />
+                                <Input placeholder="MM / YY" value={expiry} onChange={formatExpiry} maxLength={7} className="pl-10 text-center bg-background focus:ring-primary/20 transition-all" />
+                            </div>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/70" />
+                                <Input placeholder="CVC" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").substring(0, 3))} maxLength={3} type="password" className="pl-10 text-center bg-background focus:ring-primary/20 transition-all" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Billing Address</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                             <select className="col-span-1 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={country} onChange={(e) => setCountry(e.target.value)}>
+                                <option value="Pakistan">PK</option>
+                                <option value="United States">US</option>
+                                <option value="United Kingdom">UK</option>
+                            </select>
+                            <Input placeholder="Street Address" value={address} onChange={(e) => setAddress(e.target.value)} className="col-span-2 bg-background focus:ring-primary/20 transition-all" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 py-3 px-4 rounded-xl bg-muted/30 border border-border/40">
+                        <input type="checkbox" id="save-info" className="mt-1 h-4 w-4 rounded border-gray-400 text-primary focus:ring-primary/20 accent-primary cursor-pointer" checked={saveInfo} onChange={(e) => setSaveInfo(e.target.checked)} />
+                        <label htmlFor="save-info" className="text-sm text-muted-foreground cursor-pointer select-none">
+                            <span className="font-medium text-foreground block mb-0.5">Save payment details</span>
+                            Securely save my information for 1-click checkout next time.
+                        </label>
+                    </div>
+
+                    <Button type="submit" disabled={loading} className={cn(
+                            "w-full h-14 text-base font-bold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300",
+                            "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 hover:scale-[1.01]",
+                            "disabled:opacity-70 disabled:hover:scale-100 disabled:grayscale"
+                    )}>
+                        {loading ? <span className="flex items-center gap-2">Processing <Sparkles className="w-4 h-4 animate-spin" /></span> : <span className="flex items-center gap-2">Pay {planPrice} Now</span>}
+                    </Button>
+                </form>
+            </div>
+          </MotionDiv>
         </div>
       </div>
     </div>

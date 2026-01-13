@@ -1,4 +1,4 @@
-import { BrainCircuit, MessageSquareText, Upload, MoveRight, Sparkles } from "lucide-react";
+import { FileText, Upload, MoveRight, Sparkles } from "lucide-react";
 import { ReactNode } from "react";
 import { MotionDiv, MotionH2, MotionH3 } from "../common/motion-wrapper";
 import BgGradient from "../common/bg-gradient"; 
@@ -19,12 +19,13 @@ const steps: Step[] = [
     icon: <Sparkles size={40} strokeWidth={1.5} />,
     label: "AI Processing",
     description:
-      "Our Gemini 1.5 Pro model reads every page instantly to understand context and nuance.",
+      "Our Gemini 2.5 Pro model scans every page instantly to identify key concepts and context.",
   },
+  // 👇 Step 3 Updated: Chat removed, replaced with Summary
   {
-    icon: <MessageSquareText size={40} strokeWidth={1.5} />,
-    label: "Chat & Insights",
-    description: "Don't just read summaries. Chat with your PDF to find specific answers in seconds.",
+    icon: <FileText size={40} strokeWidth={1.5} />,
+    label: "Get Instant Summary",
+    description: "Receive a structured summary with key takeaways, saving you hours of reading time.",
   },
 ];
 
@@ -55,7 +56,7 @@ export default function HowItWorksSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="font-bold text-3xl md:text-4xl max-w-2xl mx-auto text-foreground"
           >
-            From static PDF to <span className="text-primary">active knowledge</span> in 3 steps
+            From static PDF to <span className="text-primary">concise insights</span> in 3 steps
           </MotionH3>
         </div>
 
