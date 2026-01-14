@@ -6,6 +6,7 @@ import Footer from "@/components/common/footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ORIGIN_URL } from "@/utils/helpers";
+import { Analytics } from "@vercel/analytics/next";
 
 // 👇 Change 2: Outfit Configuration
 const fontSans = Outfit({
@@ -44,6 +45,7 @@ export default function RootLayout({
             <Footer />
           </div>
           <Toaster richColors />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
