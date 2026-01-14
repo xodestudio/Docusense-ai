@@ -7,6 +7,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ORIGIN_URL } from "@/utils/helpers";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // 👇 Change 2: Outfit Configuration
 const fontSans = Outfit({
@@ -46,6 +47,7 @@ export default function RootLayout({
           </div>
           <Toaster richColors />
           <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
