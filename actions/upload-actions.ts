@@ -2,7 +2,7 @@
 
 import { getDbConnection } from "@/lib/db";
 import { generateSummaryFromGemini } from "@/lib/gemini-ai";
-import { fetchAndExtractPdfText } from "@/lib/langchain"; // 👈 Ab hum ye use karenge
+import { fetchAndExtractPdfText } from "@/lib/langchain";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -35,6 +35,14 @@ export async function generatePdfSummary({
 
     // 👇 LangChain Magic
     const pdfText = await fetchAndExtractPdfText(fileUrl);
+
+    // 🛡️ FIX: Check added here to satisfy TypeScript & Runtime safety
+    if (!pdfText) {
+      throw new Error(
+        "Failed to extract text. The PDF might be empty or unreadable."
+      );
+    }
+
     console.log(`✅ Text Extracted! Length: ${pdfText.length}`);
 
     // Call Gemini
@@ -68,7 +76,6 @@ export async function generatePdfSummary({
   }
 }
 
-// ... (storePdfSummaryAction same rahega jo tumhare paas pehle tha)
 export async function storePdfSummaryAction({
   fileUrl,
   summary,
@@ -94,6 +101,7 @@ export async function storePdfSummaryAction({
     if (!savedSummary)
       return { success: false, message: "Failed to save summary" };
   } catch (error) {
+    console.error("Database Error:", error); // Log error for debugging
     return { success: false, message: "Database Error" };
   }
 
