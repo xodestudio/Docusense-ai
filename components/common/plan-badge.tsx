@@ -24,19 +24,21 @@ export default async function PlanBadge() {
   if (!priceId) {
     return (
         <Link href="/#pricing" className="ml-2 group relative inline-flex items-center justify-center rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-            {/* Animated Gradient Border */}
+            {/* Animated Gradient Border (Same as before) */}
             <span className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-70 blur-sm transition-all duration-500 group-hover:opacity-100 group-hover:blur-md" />
             
-            {/* Button Content */}
-            <span className="relative inline-flex h-7 cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-xs font-medium text-white backdrop-blur-3xl transition-colors hover:bg-slate-900">
+            {/* Button Content (Updated) */}
+            <span className="relative inline-flex h-7 cursor-pointer items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-black backdrop-blur-3xl transition-colors hover:bg-gray-50">
                 <Crown className="w-3.5 h-3.5 mr-1.5 fill-yellow-500 text-yellow-500" />
-                <span className="bg-gradient-to-r from-indigo-200 to-purple-200 bg-clip-text text-transparent font-bold">
+                
+                {/* Text Black */}
+                <span className="font-bold text-black">
                     Upgrade to Pro
                 </span>
             </span>
         </Link>
     )
-  }
+}
 
   // 🔍 Case B: Plan Identify Karo
   const isPro = priceId === PRO_PRICE_ID;

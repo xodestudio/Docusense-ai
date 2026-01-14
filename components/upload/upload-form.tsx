@@ -8,26 +8,20 @@ import { generatePdfSummary, storePdfSummaryAction } from "@/actions/upload-acti
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import LoadingSkeleton from "./loading-skeleton";
-
-const LIMITS = {
-  FREE: 10 * 1024 * 1024, // 10MB
-  PRO: 25 * 1024 * 1024,  // 25MB
-};
+import { Lock, CloudAlert } from "lucide-react"; // New Icons
 
 interface UploadFormProps {
   isPro: boolean;
+  maxSize: number;
+  planLabel: string;
 }
 
-export default function UploadForm({ isPro }: UploadFormProps) {
+export default function UploadForm({ isPro, maxSize, planLabel }: UploadFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const endpoint = isPro ? "proUploader" : "freeUploader";
-  const maxFileSize = isPro ? LIMITS.PRO : LIMITS.FREE;
-  
-  // Dynamic Limit Text Logic
-  const limitText = isPro ? "25MB" : "10MB";
 
   const { startUpload } = useUploadThing(endpoint, {
     onUploadError: (err) => {
@@ -48,8 +42,8 @@ export default function UploadForm({ isPro }: UploadFormProps) {
         file: z
           .instanceof(File, { message: "Invalid file" })
           .refine(
-            (file) => file.size <= maxFileSize,
-            `File size must be less than ${limitText}. ${!isPro ? "Upgrade to Pro for larger files." : ""}`
+            (file) => file.size <= maxSize,
+            "FILE_TOO_LARGE" 
           )
           .refine(
             (file) => file.type.startsWith("application/pdf"),
@@ -60,9 +54,55 @@ export default function UploadForm({ isPro }: UploadFormProps) {
       const validatedFields = schema.safeParse({ file });
       
       if (!validatedFields.success) {
-        toast.error(
-          validatedFields.error.flatten().fieldErrors.file?.[0] ?? "Invalid file."
-        );
+        const errorMsg = validatedFields.error.flatten().fieldErrors.file?.[0];
+        
+        // ✨ NEW: PREMIUM CARD STYLE TOAST
+        if (errorMsg === "FILE_TOO_LARGE") {
+            toast.custom((t) => (
+                <div className="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-900/50 rounded-xl shadow-xl p-5 flex flex-col gap-3 w-full max-w-sm pointer-events-auto ring-1 ring-black/5">
+                    {/* Header */}
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg shrink-0">
+                            <CloudAlert className="w-5 h-5 text-red-500 dark:text-red-400" />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                                File Limit Reached
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                                Your <span className="font-medium text-gray-700 dark:text-gray-300">{isPro ? "Pro" : "Basic"}</span> plan allows files up to <span className="font-bold text-gray-900 dark:text-white">{planLabel}</span>.
+                                This file is bigger than that.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Action Button (Sirf agar user PRO nahi hai) */}
+                    {!isPro && (
+                        <button 
+                            onClick={() => {
+                                toast.dismiss(t); // Toast band kro
+                                router.push('/dashboard/upgrade'); // Upgrade page par le jao
+                            }}
+                            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 text-white dark:text-black py-2 rounded-lg text-xs font-bold hover:shadow-lg transition-all active:scale-95"
+                        >
+                            <Lock className="w-3 h-3" /> Upgrade to Pro (25MB)
+                        </button>
+                    )}
+
+                    {/* Close Button (Optional, agar user upgrade na karna chahe) */}
+                    {isPro && (
+                        <button 
+                            onClick={() => toast.dismiss(t)}
+                            className="w-full py-1.5 text-xs font-medium text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                        >
+                            Close
+                        </button>
+                    )}
+                </div>
+            ), { duration: 8000 }); // Thora lamba time taake user parh sake
+        } else {
+            toast.error(errorMsg ?? "Invalid file.");
+        }
         return;
       }
 
@@ -132,25 +172,17 @@ export default function UploadForm({ isPro }: UploadFormProps) {
         </div>
       </div>
 
-      {/* Content */}
       {isLoading ? (
         <div className="animate-in fade-in zoom-in duration-500">
-           {/* ✅ Clean Skeleton without extra text below */}
            <LoadingSkeleton />
         </div>
       ) : (
         <div className="space-y-3">
-            {/* Input Component */}
             <UploadFormInput
               isLoading={isLoading}
               ref={formRef}
               onSubmit={handleSubmit}
             />
-            
-            {/* Single Dynamic Helper Text */}
-            <p className="text-center text-xs text-muted-foreground">
-                Supported files: PDF documents up to <span className="font-bold text-foreground">{limitText}</span>.
-            </p>
         </div>
       )}
     </div>

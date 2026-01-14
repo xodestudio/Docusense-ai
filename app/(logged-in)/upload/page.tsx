@@ -3,7 +3,7 @@ import { MotionDiv } from "@/components/common/motion-wrapper";
 import UploadForm from "@/components/upload/upload-form";
 import UploadHeader from "@/components/upload/upload-header";
 import { hasReachedUploadLimit } from "@/lib/user";
-import { getUserSubscription } from "@/lib/subscription";
+import { getUserUploadLimit } from "@/lib/subscription"; // 👈 New Import
 import { containerVariants } from "@/utils/constants";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 
 export const maxDuration = 300; 
+
 
 export default async function UploadPage() {
   const user = await currentUser();
@@ -22,14 +23,13 @@ export default async function UploadPage() {
 
   const userId = user.id;
   
-  // 1. Fetch limit status
+  // 1. Fetch Upload Count Limit (e.g., 3 pdfs per day)
   const { hasReachedLimit, uploadLimit } = await hasReachedUploadLimit(userId);
 
-  // 2. Fetch Subscription Status for 'isPro' prop
-  const subscription = await getUserSubscription(userId);
-  const isPro = subscription?.plan === "pro";
+  // 2. Fetch File Size Limit (e.g., 10MB vs 25MB)
+  const { isPro, maxSizeBytes, label } = await getUserUploadLimit();
 
-  // 🛑 Redirect if limit reached (Server Side Guard)
+  // 🛑 Redirect if COUNT limit reached
   if (hasReachedLimit) {
       return (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
@@ -56,11 +56,8 @@ export default async function UploadPage() {
 
   return (
     <section className="relative isolate min-h-screen flex flex-col overflow-hidden bg-background">
-      
-      {/* Background Ambience */}
       <BgGradient className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 blur-[100px]" />
 
-      {/* Main Container */}
       <MotionDiv
         variants={containerVariants}
         initial="hidden"
@@ -70,10 +67,17 @@ export default async function UploadPage() {
         <div className="flex flex-col items-center gap-10 text-center">
           
           <UploadHeader />
+
+          {/* 👇 Dynamic Info Text showing current plan limits */}
+          <div className="bg-primary/5 border border-primary/10 rounded-full px-4 py-1.5 mb-[-20px]">
+             <p className="text-xs font-medium text-primary">
+                Current Plan: {isPro ? "Pro ⚡" : "Basic"} • Max File Size: {label}
+             </p>
+          </div>
           
-          {/* 👇 MODIFIED: Removed 'bg-card border shadow' etc. Just kept 'w-full max-w-2xl' for alignment */}
           <div className="w-full max-w-2xl">
-             <UploadForm isPro={isPro} />
+             {/* 👇 Props Pass kar rahe hain Form ko */}
+             <UploadForm isPro={isPro} maxSize={maxSizeBytes} planLabel={label} />
           </div>
           
         </div>

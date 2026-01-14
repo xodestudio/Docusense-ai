@@ -29,14 +29,11 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
       return { type: "paragraph", content: trimmed, original: trimmed };
     });
 
-    // Step B: Grouping into "Logical Sections" (Heading + Content)
-    // Hum pehle blocks ko "Sections" mein convert karenge.
-    // Aik section = Heading + Uske neeche wala content.
+    // Step B: Grouping
     const sections: any[][] = [];
     let currentSection: any[] = [];
 
     parsedBlocks.forEach((block) => {
-        // Jab bhi nayi heading aaye, purana section save kro aur naya shuru kro
         if (block.type === 'heading') {
             if (currentSection.length > 0) {
                 sections.push(currentSection);
@@ -46,20 +43,14 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
             currentSection.push(block);
         }
     });
-    // Last wala section push kro
     if (currentSection.length > 0) sections.push(currentSection);
-
 
     // Step C: Pagination (2 Sections Per Page)
     const SECTIONS_PER_PAGE = 2;
     const resultPages = [];
 
     for (let i = 0; i < sections.length; i += SECTIONS_PER_PAGE) {
-        // Do sections uthao
         const pageSections = sections.slice(i, i + SECTIONS_PER_PAGE);
-        
-        // Unko wapis 'flat' list mein convert kro taake render ho saken
-        // Output: [Heading1, Para1, Heading2, Para2]
         const flatPage = pageSections.flat();
         resultPages.push(flatPage);
     }
@@ -73,44 +64,43 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
   const contentContainerRef = useRef<HTMLDivElement>(null);
 
   // Reset scroll when page changes
-  useEffect(() => {
-    if (contentContainerRef.current) {
-        contentContainerRef.current.scrollTop = 0;
-    }
-  }, [currentPage]);
+useEffect(() => {
+if (contentContainerRef.current) {
+    contentContainerRef.current.scrollTop = 0;
+}
+}, [currentPage]);
 
   // --- 3. HANDLERS ---
-  const nextPage = () => {
-    if (currentPage < pages.length - 1) setCurrentPage(c => c + 1);
-  };
+const nextPage = () => {
+if (currentPage < pages.length - 1) setCurrentPage(c => c + 1);
+};
 
-  const prevPage = () => {
+const prevPage = () => {
     if (currentPage > 0) setCurrentPage(c => c - 1);
-  };
+};
 
-  const copyToClipboard = () => {
+const copyToClipboard = () => {
     navigator.clipboard.writeText(summary);
     setCopied(true);
     toast.success("Summary copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
-  };
+};
 
-  const renderText = (text: string) => {
+const renderText = (text: string) => {
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
+    if (part.startsWith("**") && part.endsWith("**")) {
         return <strong key={i} className="text-primary font-bold">{part.slice(2, -2)}</strong>;
-      }
-      return part;
+    }
+    return part;
     });
-  };
+};
 
-  return (
+return (
     <div className="w-full max-w-4xl mx-auto py-10">
-      
+    
       {/* Main Floating Card */}
-      {/* UPDATE: Height increased to 800px to fit 2 sections comfortably */}
-      <div className="relative w-full h-[800px] flex flex-col bg-white dark:bg-gray-900 rounded-[2rem] border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden transition-all duration-300">
+    <div className="relative w-full h-[800px] flex flex-col bg-white dark:bg-gray-900 rounded-[2rem] border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden transition-all duration-300">
         
         {/* Progress Bar */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gray-100 dark:bg-gray-800 z-20">
@@ -138,9 +128,10 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
         </div>
 
         {/* CONTENT AREA */}
+        {/* 🔴 Updated: Scrollbar classes removed and hidden utility classes added */}
         <div 
             ref={contentContainerRef}
-            className="flex-1 relative p-8 sm:p-10 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800 scrollbar-track-transparent"
+            className="flex-1 relative p-8 sm:p-10 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
             <AnimatePresence mode="wait">
                 <motion.div
@@ -149,14 +140,13 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
                     animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                     exit={{ opacity: 0, x: -20, filter: "blur(4px)" }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="space-y-8" // Increased spacing between blocks
+                    className="space-y-8"
                 >
                     {pages[currentPage]?.map((block, idx) => (
                         <div key={idx} className="leading-relaxed text-gray-700 dark:text-gray-200">
                             
                             {block.type === 'heading' && (
                                 <div className={cn("flex items-center gap-2 mb-3", idx > 0 && "pt-4 border-t border-gray-100 dark:border-gray-800 mt-6")}>
-                                    {/* Agar page ki second heading hai to upar thora divider aur margin do */}
                                     <span className="w-1.5 h-6 bg-primary rounded-full inline-block shrink-0" />
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                                         {block.content}
@@ -216,11 +206,11 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
             </Button>
         </div>
 
-      </div>
+    </div>
 
       {/* Background Decor */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[90%] bg-primary/5 blur-[80px] -z-10 rounded-full pointer-events-none" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[90%] bg-primary/5 blur-[80px] -z-10 rounded-full pointer-events-none" />
 
     </div>
-  );
+);
 }

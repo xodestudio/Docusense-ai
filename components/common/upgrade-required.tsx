@@ -1,72 +1,69 @@
-import { ArrowRight, Lock, CheckCircle2, Zap } from "lucide-react";
-import BgGradient from "./bg-gradient";
-import { Button } from "@/components/ui/button";
+import { Check, Crown, Sparkles, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function UpgradeRequired() {
   const benefits = [
     "Unlimited PDF Uploads & Summaries",
-    "Smartest AI Model (Gemini 1.5 Pro)",
-    "Process Larger Files (Up to 32MB)"
+    "Advanced AI Model (Gemini 2.5 Flash)",
+    "Upload Larger Files (Up to 25MB)"
   ];
 
   return (
-    <div className="relative flex min-h-[60vh] items-center justify-center overflow-hidden py-10">
+    <div className="relative flex min-h-[50vh] items-center justify-center py-12">
       
-      {/* 1. Background: Subtle Professional Glow */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background to-transparent z-10" />
-      <BgGradient className="from-primary/20 via-purple-500/20 to-blue-500/10 opacity-50 blur-3xl" />
+      {/* Background Ambience (Static) */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10" />
       
       <div className="container px-4 relative z-20">
         
-        {/* 2. The "Sales Card" */}
-        <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 rounded-3xl border border-border/60 bg-white/60 p-8 md:p-12 text-center shadow-2xl backdrop-blur-xl dark:bg-black/40">
+        {/* Main Card */}
+        <div className="mx-auto flex max-w-[480px] flex-col items-center rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-8 shadow-xl">
           
-          {/* Header Section */}
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 ring-1 ring-primary/20">
-               <Lock className="h-7 w-7 text-primary" />
-            </div>
-            
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-                You've hit the <span className="text-primary">Free Limit</span>
-            </h2>
-            
-            {/* EDUCATIONAL COPY: Human & Real */}
-            <p className="text-muted-foreground text-lg leading-relaxed max-w-xl mx-auto">
-              To maintain high-quality AI responses for everyone, we have to limit usage on the free tier. 
-              Upgrade to <span className="font-semibold text-foreground">Pro</span> to remove limits, upload larger documents, and get faster, deeper insights from our best AI model.
-            </p>
+          {/* Header Icon */}
+          <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary">
+             <Crown className="w-7 h-7" />
           </div>
+          
+          {/* Title */}
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 text-center">
+             Upgrade to Pro
+          </h2>
+          
+          {/* Clear Description of Limits */}
+          <p className="text-gray-500 dark:text-gray-400 text-sm text-center leading-relaxed mb-8 px-4">
+            Your <strong>Basic Plan</strong> supports files up to <span className="text-foreground font-medium">10MB</span>. 
+            <br />
+            Unlock the <strong>Pro Plan</strong> to upload files up to <span className="text-primary font-bold">25MB</span> and use our most advanced AI models.
+          </p>
 
-          {/* 3. The "Benefit Stack" (Real Features Only) */}
-          <div className="grid gap-3 w-full max-w-md text-left bg-background/50 p-6 rounded-xl border border-border/50">
-             <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">What you get instantly:</span>
-             </div>
+          {/* Benefits List */}
+          <div className="w-full bg-gray-50 dark:bg-gray-900/50 p-5 rounded-xl border border-gray-100 dark:border-gray-800 mb-8 space-y-3">
              {benefits.map((benefit, index) => (
-               <div key={index} className="flex items-center gap-3">
-                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-                 <span className="text-sm font-medium text-foreground/90">{benefit}</span>
-               </div>
+                <div key={index} className="flex items-center gap-3">
+                  <div className="p-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-500">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {benefit}
+                  </span>
+                </div>
              ))}
           </div>
 
-          {/* 4. Call to Action */}
-          <div className="w-full max-w-sm space-y-4">
+          {/* Action Button (No Animation) */}
+          <div className="w-full space-y-4">
             <Button
-                asChild
-                size="lg"
-                className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:scale-[1.02]"
+              asChild
+              className="w-full h-11 text-sm font-semibold rounded-lg bg-primary hover:bg-primary/90 text-white shadow-md transition-colors"
             >
-                <Link href="/#pricing" className="flex gap-2 items-center justify-center">
-                Upgrade to Pro <ArrowRight className="w-4 h-4" />
+                <Link href="/dashboard/upgrade" className="flex gap-2 items-center justify-center">
+                   <Sparkles className="w-4 h-4" /> Get Pro Access
                 </Link>
             </Button>
             
-            <p className="text-xs text-muted-foreground font-medium">
-                🔒 Secure payment via Stripe • Cancel anytime
+            <p className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 font-medium uppercase tracking-wide">
+               <ShieldCheck className="w-3 h-3" /> Secure payment via Stripe
             </p>
           </div>
 

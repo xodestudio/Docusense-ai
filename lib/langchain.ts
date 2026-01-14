@@ -12,11 +12,14 @@ export async function fetchAndExtractPdfText(fileUrl: string) {
 
       const response = await fetch(fileUrl, {
         method: "GET",
+
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+
           Accept: "application/pdf",
         },
+
         cache: "no-store",
       });
 
@@ -27,22 +30,30 @@ export async function fetchAndExtractPdfText(fileUrl: string) {
       }
 
       const blob = await response.blob();
+
       const loader = new WebPDFLoader(blob);
 
       // 🤫 START: Suppress Console Warnings (Font Noise Fix)
+
       const originalWarn = console.warn;
+
       console.warn = (...args) => {
         // Sirf "Ran out of space" wali warning ko ignore kro
+
         if (typeof args[0] === "string" && args[0].includes("Ran out of space"))
           return;
+
         originalWarn.apply(console, args);
       };
+
       // ----------------------------------------------------
 
       const docs = await loader.load();
 
       // 🔊 END: Restore Console Warnings
+
       console.warn = originalWarn;
+
       // ----------------------------------------------------
 
       const fullText = docs.map((doc) => doc.pageContent).join("\n");
@@ -55,6 +66,7 @@ export async function fetchAndExtractPdfText(fileUrl: string) {
     } catch (error: any) {
       console.error(
         `❌ Error in LangChain PDF Loader (Attempt ${attempt}):`,
+
         error.message
       );
 

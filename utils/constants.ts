@@ -32,13 +32,6 @@ export const pricingPlans = [
   },
 ];
 
-// export const PLAN_LIMITS = {
-//   basic: 10 * 1024 * 1024,
-//   pro: 25 * 1024 * 1024,
-// };
-
-// export const MAX_FREE_LIMIT = 0;
-
 export const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
